@@ -78,6 +78,8 @@ export const clear = (): void => {
   localDeps = '';
   localDepsCnt = 0;
 
+  asyncDeps = '';
+
   exportedDeps = '';
   exportedDepsCnt = 0;
 }
