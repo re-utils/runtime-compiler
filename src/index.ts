@@ -83,6 +83,14 @@ export const clear = (): void => {
 }
 
 /**
+ * Clear compiler data in hydration
+ */
+export const clearHydration = (): void => {
+  externalDependencies.length = 0;
+  exportedDepsCnt = 0;
+}
+
+/**
  * Get evaluate code
  */
 export const evaluateCode = (): string => '{' + localDeps + (
