@@ -19,9 +19,9 @@ let localDepsCnt = 0;
  */
 export const injectDependency = (val: string): string => {
   localDeps = localDeps === ''
-    ? 'var __'+ localDepsCnt + '=' + val
-    : localDeps + ',__' + localDepsCnt + '=' + val;
-  return '__' + localDepsCnt++;
+    ? 'var $'+ localDepsCnt + '=' + val
+    : localDeps + ',$' + localDepsCnt + '=' + val;
+  return '$' + localDepsCnt++;
 };
 
 /**
