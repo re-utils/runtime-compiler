@@ -11,6 +11,10 @@ export const externalDependencies: any[] = [];
 /**
  * @internal
  */
+export const persistentDependencies: any[] = [];
+/**
+ * @internal
+ */
 export let localDeps = '';
 let localDepsCnt = 0;
 
@@ -70,6 +74,12 @@ export const injectExternalDependency = (val: any): string =>
   '_' + externalDependencies.push(val);
 
 /**
+ * Inject a persistent dependency
+ * @param val
+ */
+export const injectPersistentDependency = (val: any): string => '__' + persistentDependencies.push(val);
+
+/**
  * Clear compiler data
  */
 export const clear = (): void => {
@@ -108,6 +118,8 @@ export const externalDependencyNames = (): string => {
   let depsString = '_,';
   for (let i = 0; i < externalDependencies.length; i++)
     depsString += '_' + (i + 1) + ',';
+    for (let i = 0; i < persistentDependencies.length; i++)
+      depsString += '__' + (i + 1) + ',';
   return depsString;
 }
 
