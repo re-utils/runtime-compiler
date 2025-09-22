@@ -11,6 +11,10 @@ export const externalDependencies: any[] = [];
 /**
  * @internal
  */
+export const cache: any[] = [];
+/**
+ * @internal
+ */
 export let localDeps = '';
 let localDepsCnt = 0;
 
@@ -80,15 +84,11 @@ export const externalDependencyNames = (): string => {
 };
 
 /**
- * Clear callbacks
- */
-export const clearCallbacks: (() => void)[] = [];
-
-/**
  * Clear compiler data
  */
 export const clear = (): void => {
   externalDependencies.length = 0;
+  cache.length = 0;
 
   localDeps = '';
   localDepsCnt = 0;
@@ -97,8 +97,6 @@ export const clear = (): void => {
 
   exportedDeps = '';
   exportedDepsCnt = 0;
-
-  for (let i = 0; i < clearCallbacks.length; i++) clearCallbacks[i]();
 };
 
 /**
@@ -106,9 +104,15 @@ export const clear = (): void => {
  */
 export const clearHydration = (): void => {
   externalDependencies.length = 0;
+  cache.length = 0;
+
   exportedDepsCnt = 0;
-  for (let i = 0; i < clearCallbacks.length; i++) clearCallbacks[i]();
 };
+
+export const lazyDependency = (inject: (v: any) => string, val: string): () => string => {
+  let i = -1;
+  return () => cache[i > -1 ? i : i = cache.push(inject(val)) - 1];
+}
 
 /**
  * Get evaluate code
