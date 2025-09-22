@@ -80,6 +80,11 @@ export const externalDependencyNames = (): string => {
 };
 
 /**
+ * Clear callbacks
+ */
+export const clearCallbacks: (() => void)[] = [];
+
+/**
  * Clear compiler data
  */
 export const clear = (): void => {
@@ -92,6 +97,8 @@ export const clear = (): void => {
 
   exportedDeps = '';
   exportedDepsCnt = 0;
+
+  for (let i = 0; i < clearCallbacks.length; i++) clearCallbacks[i]();
 };
 
 /**
@@ -100,6 +107,7 @@ export const clear = (): void => {
 export const clearHydration = (): void => {
   externalDependencies.length = 0;
   exportedDepsCnt = 0;
+  for (let i = 0; i < clearCallbacks.length; i++) clearCallbacks[i]();
 };
 
 /**
