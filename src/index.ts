@@ -80,6 +80,22 @@ export const injectExternalDependency = (val: any): string =>
 export const injectPersistentDependency = (val: any): string => '__' + persistentDependencies.push(val);
 
 /**
+ * @internal
+ */
+export let localPersistentDeps = '';
+let localPersistentDepsCnt = 0;
+/**
+ * Inject a local persistent dependency
+ * @param val
+ */
+export const injectPersistentLocalDependency = (val: string): string => {
+  localPersistentDeps = localPersistentDeps === ''
+    ? 'var $'+ localPersistentDepsCnt + '=' + val
+    : localPersistentDeps + ',$' + localPersistentDepsCnt + '=' + val;
+  return '$' + localPersistentDepsCnt++;
+};
+
+/**
  * Clear compiler data
  */
 export const clear = (): void => {
@@ -105,7 +121,7 @@ export const clearHydration = (): void => {
 /**
  * Get evaluate code
  */
-export const evaluateCode = (): string => '{' + localDeps + (
+export const evaluateCode = (): string => '{' + localDeps + (localPersistentDeps === '' ? '' : ';' + localPersistentDeps) + (
   asyncDeps === ''
     ? ';_.push('
     : ';[' + asyncDeps + ']=await Promise.all([' + asyncDeps + ']);_.push('
