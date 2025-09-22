@@ -90,9 +90,9 @@ let localPersistentDepsCnt = 0;
  */
 export const injectPersistentLocalDependency = (val: string): string => {
   localPersistentDeps = localPersistentDeps === ''
-    ? 'var $'+ localPersistentDepsCnt + '=' + val
-    : localPersistentDeps + ',$' + localPersistentDepsCnt + '=' + val;
-  return '$' + localPersistentDepsCnt++;
+    ? 'var $_'+ localPersistentDepsCnt + '=' + val
+    : localPersistentDeps + ',$_' + localPersistentDepsCnt + '=' + val;
+  return '$_' + localPersistentDepsCnt++;
 };
 
 /**
