@@ -22,9 +22,7 @@ let localDepsCnt = 0;
  * Inject a local dependency.
  */
 export const injectDependency = (val: string): string => {
-  localDeps = localDeps === ''
-    ? 'var $'+ localDepsCnt + '=' + val
-    : localDeps + ',$' + localDepsCnt + '=' + val;
+  localDeps += ',$' + localDepsCnt + '=' + val;
   return '$' + localDepsCnt++;
 };
 
@@ -39,7 +37,7 @@ export let asyncDeps = '';
  */
 export const waitDependency = (name: string): void => {
   asyncDeps += name + ',';
-}
+};
 
 /**
  * @internal
@@ -54,18 +52,20 @@ let exportedDepsCnt = 0;
 export const exportDependency = <T>(name: string): CompiledDependency<T> => {
   exportedDeps += name + ',';
   return exportedDepsCnt++ as any;
-}
+};
 
 /**
  * Mark a slot in compiled dependencies
  */
-export const markExported = <T>(): CompiledDependency<T> => exportedDepsCnt++ as any;
+export const markExported = <T>(): CompiledDependency<T> =>
+  exportedDepsCnt++ as any;
 
 /**
  * Get the value of a dependency
  * @param idx
  */
-export const getDependency = <T>(idx: CompiledDependency<T>): T => compiledDependencies[idx];
+export const getDependency = <T>(idx: CompiledDependency<T>): T =>
+  compiledDependencies[idx];
 
 /**
  * Inject an external dependency
@@ -77,7 +77,8 @@ export const injectExternalDependency = (val: any): string =>
  * Inject a persistent dependency
  * @param val
  */
-export const injectPersistentDependency = (val: any): string => '__' + persistentDependencies.push(val);
+export const injectPersistentDependency = (val: any): string =>
+  '__' + persistentDependencies.push(val);
 
 /**
  * @internal
@@ -89,10 +90,8 @@ let localPersistentDepsCnt = 0;
  * @param val
  */
 export const injectPersistentLocalDependency = (val: string): string => {
-  localPersistentDeps = localPersistentDeps === ''
-    ? 'var $_'+ localPersistentDepsCnt + '=' + val
-    : localPersistentDeps + ',$_' + localPersistentDepsCnt + '=' + val;
-  return '$_' + localPersistentDepsCnt++;
+  localPersistentDeps += ',$$' + localPersistentDepsCnt + '=' + val;
+  return '$$' + localPersistentDepsCnt++;
 };
 
 /**
@@ -108,7 +107,7 @@ export const clear = (): void => {
 
   exportedDeps = '';
   exportedDepsCnt = 0;
-}
+};
 
 /**
  * Clear compiler data in hydration
@@ -116,16 +115,20 @@ export const clear = (): void => {
 export const clearHydration = (): void => {
   externalDependencies.length = 0;
   exportedDepsCnt = 0;
-}
+};
 
 /**
  * Get evaluate code
  */
-export const evaluateCode = (): string => '{' + localDeps + (localPersistentDeps === '' ? '' : ';' + localPersistentDeps) + (
-  asyncDeps === ''
+export const evaluateCode = (): string =>
+  '{var $' +
+  localPersistentDeps +
+  localDeps +
+  (asyncDeps === ''
     ? ';_.push('
-    : ';[' + asyncDeps + ']=await Promise.all([' + asyncDeps + ']);_.push('
-) + exportedDeps + ')}';
+    : ';[' + asyncDeps + ']=await Promise.all([' + asyncDeps + ']);_.push(') +
+  exportedDeps +
+  ')}';
 
 /**
  * Get external dependency names
@@ -134,9 +137,10 @@ export const externalDependencyNames = (): string => {
   let depsString = '_,';
   for (let i = 0; i < externalDependencies.length; i++)
     depsString += '_' + (i + 1) + ',';
-    for (let i = 0; i < persistentDependencies.length; i++)
-      depsString += '__' + (i + 1) + ',';
+  for (let i = 0; i < persistentDependencies.length; i++)
+    depsString += '__' + (i + 1) + ',';
   return depsString;
-}
+};
 
-export const AsyncFunction: typeof Function = (async () => {}).constructor as any;
+export const AsyncFunction: typeof Function = (async () => {})
+  .constructor as any;
