@@ -109,7 +109,10 @@ export const clearHydration = (): void => {
   exportedDepsCnt = 0;
 };
 
-export const lazyDependency = (inject: (v: any) => string, val: string): () => string => {
+export const lazyDependency = <T>(
+  inject: (v: T) => string,
+  val: T,
+): () => string => {
   let i = -1;
   return () => cache[i > -1 ? i : i = cache.push(inject(val)) - 1];
 }
