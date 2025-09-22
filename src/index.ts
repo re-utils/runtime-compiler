@@ -11,7 +11,7 @@ export const externalDependencies: any[] = [];
 /**
  * @internal
  */
-export const cache: any[] = [];
+export let cache: Record<symbol, string> = {};
 /**
  * @internal
  */
@@ -88,7 +88,7 @@ export const externalDependencyNames = (): string => {
  */
 export const clear = (): void => {
   externalDependencies.length = 0;
-  cache.length = 0;
+  cache = {};
 
   localDeps = '';
   localDepsCnt = 0;
@@ -104,7 +104,7 @@ export const clear = (): void => {
  */
 export const clearHydration = (): void => {
   externalDependencies.length = 0;
-  cache.length = 0;
+  cache = {};
 
   exportedDepsCnt = 0;
 };
@@ -113,8 +113,8 @@ export const lazyDependency = <T>(
   inject: (v: T) => string,
   val: T,
 ): () => string => {
-  let i = -1;
-  return () => cache[i > -1 ? i : i = cache.push(inject(val)) - 1];
+  const ID = Symbol();
+  return () => cache[ID] ??= inject(val);
 }
 
 /**
