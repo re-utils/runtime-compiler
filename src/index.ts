@@ -109,6 +109,14 @@ export const clearHydration = (): void => {
   exportedDepsCnt = 0;
 };
 
+/**
+ * Noop function
+ */
+export const noOp = () => '';
+
+/**
+ * Lazily add the dependency when needed
+ */
 export const lazyDependency = <T>(
   inject: (v: T) => string,
   val: T,
