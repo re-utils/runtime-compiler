@@ -96,7 +96,6 @@ export const clear = (): void => {
   asyncDeps = '';
 
   exportedDeps = '';
-  exportedDepsCnt = 0;
 };
 
 /**
@@ -105,8 +104,6 @@ export const clear = (): void => {
 export const clearHydration = (): void => {
   externalDependencies.length = 0;
   cache = {};
-
-  exportedDepsCnt = 0;
 };
 
 /**
