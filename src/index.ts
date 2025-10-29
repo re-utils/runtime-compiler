@@ -1,3 +1,5 @@
+import { AsyncFunction } from './utils.js';
+
 export type LocalDependency<T> = string & [T];
 export type ExportedDependency<T> = number & [T];
 
@@ -25,7 +27,7 @@ let localDepsCnt = 0;
  */
 export const injectDependency = <T>(val: string): LocalDependency<T> => {
   localDeps += ',$' + localDepsCnt + '=' + val;
-  return '$' + localDepsCnt++ as any;
+  return ('$' + localDepsCnt++) as any;
 };
 
 /**
@@ -53,7 +55,9 @@ let exportedDepsCnt = 0;
  * Use in `default` and `build` mode.
  * @param name
  */
-export const exportDependency = <T>(name: LocalDependency<T>): ExportedDependency<T> => {
+export const exportDependency = <T>(
+  name: LocalDependency<T>,
+): ExportedDependency<T> => {
   exportedDeps += name + ',';
   return exportedDepsCnt++ as any;
 };
@@ -120,10 +124,10 @@ export const clearHydration = (): void => {
 export const lazyDependency = <T>(
   inject: (v: T) => string,
   val: T,
-): () => string => {
+): (() => string) => {
   const ID = Symbol();
-  return () => cache[ID] ??= inject(val);
-}
+  return () => (cache[ID] ??= inject(val));
+};
 
 /**
  * Get evaluated code.
@@ -178,7 +182,3 @@ export const evaluate = async (): Promise<void> =>
     compiledDependencies,
     ...externalDependencies,
   ).finally(clear);
-
-
-export const AsyncFunction: typeof Function = (async () => {})
-  .constructor as any;

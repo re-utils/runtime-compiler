@@ -1,2 +1,2 @@
 export const isHydrating = true;
-export const isOnlyBuilding = false;
+export const onlyBuild = false;

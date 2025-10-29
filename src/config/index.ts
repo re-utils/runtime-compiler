@@ -5,18 +5,18 @@ export let isHydrating = false;
 /**
  * False when in `default` and `hydrate` mode, true in `build` mode
  */
-export let isOnlyBuilding = false;
+export let onlyBuild = false;
 
 /**
- * @private
+ * @internal
  */
 export const hydrating = (): void => {
   isHydrating = true;
 };
 
 /**
- * @private
+ * @internal
  */
 export const building = (): void => {
-  isOnlyBuilding = true;
+  onlyBuild = true;
 };
