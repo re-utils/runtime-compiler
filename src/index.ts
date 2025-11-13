@@ -1,7 +1,8 @@
 import { AsyncFunction } from './utils.js';
 
-export type LocalDependency<T> = string & [T];
-export type ExportedDependency<T> = number & [T];
+declare const _: unique symbol;
+export type LocalDependency<T> = string & { [_]: T };
+export type ExportedDependency<T> = number & { [_]: T };
 
 /**
  * @internal
@@ -105,7 +106,6 @@ export const clear = (): void => {
   localDepsCnt = 0;
 
   asyncDeps = '';
-
   exportedDeps = '';
 };
 
