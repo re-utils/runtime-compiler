@@ -30,4 +30,4 @@ export const inject = <
  */
 export const getDeps = (
   fn: (...args: any[]) => any,
-): LocalDependency<any[]> | undefined => (fn as any)[sym] as any;
+): LocalDependency<any>[] | undefined => (fn as any)[sym] as any;
