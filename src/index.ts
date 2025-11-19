@@ -147,9 +147,9 @@ export const evaluateToString = (): string =>
  * Run evaluated code synchronously.
  * Use in `default` and `build` mode.
  */
-export const evaluateSync = (): void => {
+export const evaluateSync = (): any => {
   try {
-    Function(externalDependencyNames(), evaluateCode())(
+    return Function(externalDependencyNames(), evaluateCode())(
       compiledDependencies,
       ...externalDependencies,
     );
@@ -162,7 +162,7 @@ export const evaluateSync = (): void => {
  * Run evaluated code asynchronously.
  * Use in `default` and `build` mode.
  */
-export const evaluate = async (): Promise<void> =>
+export const evaluate = async (): Promise<any> =>
   AsyncFunction(externalDependencyNames(), evaluateCode())(
     compiledDependencies,
     ...externalDependencies,
