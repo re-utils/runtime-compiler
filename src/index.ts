@@ -35,20 +35,6 @@ export const injectDependency = <T>(val: string): LocalDependency<T> => {
 /**
  * @internal
  */
-export let asyncDeps = '';
-
-/**
- * Wait for a dependency to resolve.
- * Use in `default` and `build` mode.
- * @param name
- */
-export const waitDependency = (name: string): void => {
-  asyncDeps += name + ',';
-};
-
-/**
- * @internal
- */
 export let exportedDeps = '';
 let exportedDepsCnt = 0;
 
@@ -79,6 +65,18 @@ export const getDependency = <T>(idx: ExportedDependency<T>): T =>
   compiledDependencies[idx];
 
 /**
+ * Add extra code after dependency building
+ */
+export let extraCode = '';
+
+/**
+ * Add extra code after dependency building
+ */
+export const addExtraCode = (str: string): void => {
+  extraCode += str;
+};
+
+/**
  * Inject an external dependency.
  */
 export const injectExternalDependency = (val: any): string =>
@@ -106,8 +104,9 @@ export const clear = (): void => {
   localDeps = '';
   localDepsCnt = 0;
 
-  asyncDeps = '';
   exportedDeps = '';
+
+  extraCode = '';
 };
 
 /**
@@ -135,13 +134,7 @@ export const lazyDependency = <T>(
  * Use in `default` and `build` mode.
  */
 export const evaluateCode = (): string =>
-  '{var $' +
-  localDeps +
-  (asyncDeps === ''
-    ? ';_.push('
-    : ';[' + asyncDeps + ']=await Promise.all([' + asyncDeps + ']);_.push(') +
-  exportedDeps +
-  ')}';
+  '{var $' + localDeps + ';_.push(' + exportedDeps + ');' + extraCode + '}';
 
 /**
  * Evaluate code to string.
