@@ -3,6 +3,7 @@ import { AsyncFunction } from './utils.js';
 declare const _: unique symbol;
 export type LocalDependency<T> = string & { [_]: T };
 export type ExportedDependency<T> = number & { [_]: T };
+export type InferDependency<T extends { [_]: any }> = T[typeof _];
 
 /**
  * @internal
@@ -110,10 +111,10 @@ export const clear = (): void => {
 };
 
 /**
- * Clear compiler data.
+ * Equivalent to calling `evaluate`/`evaluateSync` in `default` or `build` mode.
  * Use in `hydrate` mode.
  */
-export const clearHydration = (): void => {
+export const finishHydration = (): void => {
   externalDependencies.length = 0;
   cache = {};
 };
@@ -141,15 +142,6 @@ export const evaluateCode = (): string =>
     : ';[' + asyncDeps + ']=await Promise.all([' + asyncDeps + ']);_.push(') +
   exportedDeps +
   ')}';
-
-/**
- * Run hydration.
- */
-export const hydrate = (): any[] => {
-  const arr = [compiledDependencies].concat(externalDependencies);
-  clearHydration();
-  return arr;
-};
 
 /**
  * Evaluate code to string.
