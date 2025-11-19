@@ -111,11 +111,21 @@ export const clear = (): void => {
 
 /**
  * Equivalent to calling `evaluate`/`evaluateSync` in `default` or `build` mode.
+ * Return the args that needs to be passed in.
  * Use in `hydrate` mode.
+ *
+ * @example
+ * (() => {
+ *   // Built content
+ * })(finishHydration())
  */
-export const finishHydration = (): void => {
+export const finishHydration = (): any[] => {
+  const args = [compiledDependencies].concat(externalDependencies);
+
   externalDependencies.length = 0;
   cache = {};
+
+  return args;
 };
 
 /**
