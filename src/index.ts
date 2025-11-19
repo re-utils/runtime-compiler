@@ -94,22 +94,6 @@ export const externalDependencyNames = (): string => {
 };
 
 /**
- * Clear compiler data.
- * Use in `default` and `build` mode.
- */
-export const clear = (): void => {
-  externalDependencies.length = 0;
-  cache = {};
-
-  localDeps = '';
-  localDepsCnt = 0;
-
-  exportedDeps = '';
-
-  extraCode = '';
-};
-
-/**
  * Equivalent to calling `evaluate`/`evaluateSync` in `default` or `build` mode.
  * Return the args that needs to be passed in.
  * Use in `hydrate` mode.
@@ -119,7 +103,7 @@ export const clear = (): void => {
  *   // Built content
  * })(finishHydration())
  */
-export const finishHydration = (): any[] => {
+export const hydrate = (): any[] => {
   const args = [compiledDependencies].concat(externalDependencies);
 
   externalDependencies.length = 0;
@@ -154,26 +138,24 @@ export const evaluateToString = (): string =>
   '(' + externalDependencyNames() + ')=>' + evaluateCode();
 
 /**
- * Run evaluated code synchronously.
+ * Run evaluated code.
  * Use in `default` and `build` mode.
  */
-export const evaluateSync = (): any => {
+export const evaluate = (): any => {
   try {
     return Function(externalDependencyNames(), evaluateCode())(
       compiledDependencies,
       ...externalDependencies,
     );
   } finally {
-    clear();
+    externalDependencies.length = 0;
+    cache = {};
+
+    localDeps = '';
+    localDepsCnt = 0;
+
+    exportedDeps = '';
+
+    extraCode = '';
   }
 };
-
-/**
- * Run evaluated code asynchronously.
- * Use in `default` and `build` mode.
- */
-export const evaluate = async (): Promise<any> =>
-  AsyncFunction(externalDependencyNames(), evaluateCode())(
-    compiledDependencies,
-    ...externalDependencies,
-  ).finally(clear);
