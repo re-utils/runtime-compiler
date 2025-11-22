@@ -6,14 +6,14 @@ import { injectDependency } from './index.js';
 export const noOp = () => '';
 
 /**
- * Inject a constant.
+ * Inject a serializable constant.
  * Use in `default` and `build` mode.
  */
 export const injectConst = (val: any): string =>
   injectDependency(JSON.stringify(val));
 
 /**
- * Inject an argument list.
+ * Inject a serializable argument list.
  * Use in `default` and `build` mode.
  */
 export const injectArgsList = (list: any[]): string =>

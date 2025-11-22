@@ -1,5 +1,3 @@
-import { AsyncFunction } from './utils.js';
-
 declare const _: unique symbol;
 export type LocalDependency<T> = string & { [_]: T };
 export type ExportedDependency<T> = number & { [_]: T };
@@ -65,6 +63,7 @@ export const getDependency = <T>(idx: ExportedDependency<T>): T =>
   compiledDependencies[idx];
 
 /**
+ * @internal
  * Add extra code after dependency building
  */
 export let extraCode = '';
@@ -79,8 +78,8 @@ export const addExtraCode = (str: string): void => {
 /**
  * Inject an external dependency.
  */
-export const injectExternalDependency = (val: any): string =>
-  '_' + externalDependencies.push(val);
+export const injectExternalDependency = <T>(val: T): LocalDependency<T> =>
+  '_' + externalDependencies.push(val) as any;
 
 /**
  * Get external dependency names.
