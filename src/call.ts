@@ -1,6 +1,6 @@
 import type { InferDependency, LocalDependency } from './index.ts';
 
-const sym: unique symbol = Symbol();
+declare const sym: unique symbol;
 
 /**
  * Inject dependency to an fn for later compilation
