@@ -14,7 +14,7 @@ export const externalDependencies: any[] = [];
 /**
  * @internal
  */
-export let cache: Record<symbol, string> = {};
+export let cache: WeakSet<any> = new WeakSet();
 /**
  * @internal
  */
@@ -106,20 +106,9 @@ export const hydrate = (): any[] => {
   const args = [compiledDependencies].concat(externalDependencies);
 
   externalDependencies.length = 0;
-  cache = {};
+  cache = new WeakSet();
 
   return args;
-};
-
-/**
- * Lazily add the dependency when needed.
- */
-export const lazyDependency = <T>(
-  inject: (v: T) => string,
-  val: T,
-): (() => string) => {
-  const ID = Symbol();
-  return () => (cache[ID] ??= inject(val));
 };
 
 /**
@@ -148,7 +137,7 @@ export const evaluate = (): any => {
     );
   } finally {
     externalDependencies.length = 0;
-    cache = {};
+    cache = new WeakSet();
 
     localDeps = '';
     localDepsCnt = 0;
