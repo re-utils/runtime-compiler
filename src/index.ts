@@ -12,7 +12,7 @@ export const compiledDependencies: any[] = [];
  */
 export const externalDependencies: any[] = [];
 /**
- * @internal
+ * Global cache that resets after builds
  */
 export let cache: WeakSet<any> = new WeakSet();
 /**
