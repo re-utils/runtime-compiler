@@ -12,10 +12,6 @@ export const compiledDependencies: any[] = [];
  */
 export const externalDependencies: any[] = [];
 /**
- * Global cache that resets after builds
- */
-export let cache: WeakSet<any> = new WeakSet();
-/**
  * @internal
  */
 export let localDeps = '';
@@ -102,14 +98,7 @@ export const externalDependencyNames = (): string => {
  *   // Built content
  * })(finishHydration())
  */
-export const hydrate = (): any[] => {
-  const args = [compiledDependencies].concat(externalDependencies);
-
-  externalDependencies.length = 0;
-  cache = new WeakSet();
-
-  return args;
-};
+export const hydrate = (): any[] => [compiledDependencies].concat(externalDependencies);
 
 /**
  * Get evaluated code.
@@ -136,9 +125,6 @@ export const evaluate = (): any => {
       ...externalDependencies,
     );
   } finally {
-    externalDependencies.length = 0;
-    cache = new WeakSet();
-
     localDeps = '';
     localDepsCnt = 0;
 
