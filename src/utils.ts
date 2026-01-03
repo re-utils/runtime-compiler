@@ -24,3 +24,5 @@ export const injectArgsList = (list: any[]): string =>
  */
 export const AsyncFunction: typeof Function = (async () => {})
   .constructor as any;
+
+export * as scope from './scope.js';
