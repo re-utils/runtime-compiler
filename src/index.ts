@@ -1,6 +1,10 @@
 declare const _: unique symbol;
-export type LocalDependency<T> = string & { [_]: T };
-export type ExportedDependency<T> = number & { [_]: T };
+declare const _1: unique symbol;
+declare const _2: unique symbol;
+
+export type LocalValue<T> = string & { [_]: T }
+export type LocalDependency<T> = LocalValue<T> & { [_1]: 0 };
+export type ExportedDependency<T> = number & { [_2]: 0 };
 export type InferDependency<T extends { [_]: any }> = T[typeof _];
 
 /**
@@ -17,11 +21,16 @@ export const externalDependencies: any[] = [];
 export let localDeps = '';
 let localDepsCnt = 0;
 
+interface InjectDependencyFn {
+  <T>(val: LocalValue<T>): LocalDependency<T>;
+  <T>(val: string): LocalDependency<T>;
+}
+
 /**
  * Inject a local dependency.
  * Use in `default` and `build` mode.
  */
-export const injectDependency = <T>(val: string): LocalDependency<T> => {
+export const injectDependency: InjectDependencyFn = (val) => {
   localDeps += ',$' + localDepsCnt + '=' + val;
   return ('$' + localDepsCnt++) as any;
 };
