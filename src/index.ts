@@ -1,11 +1,29 @@
-declare const _: unique symbol;
-declare const _1: unique symbol;
-declare const _2: unique symbol;
+declare const _01: unique symbol;
+export type Statements = string & {
+  [_01]: 0;
+};
 
-export type LocalValue<T> = string & { [_]: T }
-export type LocalDependency<T> = LocalValue<T> & { [_1]: 0 };
-export type ExportedDependency<T> = number & { [_2]: 0 };
-export type InferDependency<T extends { [_]: any }> = T[typeof _];
+declare const _02: unique symbol;
+export type Statement = Statements & {
+  [_02]: 0
+}
+
+declare const _: unique symbol;
+export type Expression<T> = Statement & {
+  [_]: T;
+};
+
+declare const _11: unique symbol;
+export type Identifier<T> = Expression<T> & {
+  [_11]: 0;
+};
+
+declare const _20: unique symbol;
+export type ExportedDependency<T> = number & {
+  [_20]: 0;
+};
+
+export type InferExpression<T extends { [_]: any }> = T[typeof _];
 
 /**
  * @internal
@@ -22,8 +40,8 @@ export let localDeps = '';
 let localDepsCnt = 0;
 
 interface InjectDependencyFn {
-  <T>(val: LocalValue<T>): LocalDependency<T>;
-  <T>(val: string): LocalDependency<T>;
+  <T>(val: Expression<T>): Identifier<T>;
+  <T>(val: string): Identifier<T>;
 }
 
 /**
@@ -47,11 +65,10 @@ let exportedDepsCnt = 0;
  * @param name
  */
 export const exportDependency = <T>(
-  name: LocalDependency<T>,
-): ExportedDependency<T> => {
-  exportedDeps += name + ',';
-  return exportedDepsCnt++ as any;
-};
+  name: Expression<T>,
+): ExportedDependency<T> => (
+  (exportedDeps += name + ','), exportedDepsCnt++ as any
+);
 
 /**
  * Mark a slot in compiled dependencies.
@@ -83,8 +100,8 @@ export const addExtraCode = (str: string): void => {
 /**
  * Inject an external dependency.
  */
-export const injectExternalDependency = <T>(val: T): LocalDependency<T> =>
-  '_' + externalDependencies.push(val) as any;
+export const injectExternalDependency = <T>(val: T): Identifier<T> =>
+  ('_' + externalDependencies.push(val)) as any;
 
 /**
  * Get external dependency names.
@@ -107,21 +124,27 @@ export const externalDependencyNames = (): string => {
  *   // Built content
  * })(finishHydration())
  */
-export const hydrate = (): any[] => [compiledDependencies].concat(externalDependencies);
+export const hydrate = (): any[] =>
+  [compiledDependencies].concat(externalDependencies);
 
 /**
  * Get evaluated code.
  * Use in `default` and `build` mode.
  */
-export const evaluateCode = (): string =>
-  '{var $' + localDeps + ';_.push(' + exportedDeps + ');' + extraCode + '}';
+export const evaluateCode = (): Statements =>
+  ('var $' +
+    localDeps +
+    ';_.push(' +
+    exportedDeps +
+    ');' +
+    extraCode) as any;
 
 /**
  * Evaluate code to string.
  * Use in `default` and `build` mode.
  */
-export const evaluateToString = (): string =>
-  '(' + externalDependencyNames() + ')=>' + evaluateCode();
+export const evaluateToString = (): Expression<(...args: any[]) => any> =>
+  ('(' + externalDependencyNames() + ')=>{' + evaluateCode() + '}') as any;
 
 /**
  * Run evaluated code.
