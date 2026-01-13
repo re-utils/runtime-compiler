@@ -89,19 +89,8 @@ export const evaluateToFn = (
  * Run evaluated code.
  * Use in `default` mode.
  */
-export const evaluate = (extraCode: string): any => {
-  try {
-    return Function(
-      '$',
-      'var _' + localDeps + exportDeps + extraCode,
-    )(externals);
-  } finally {
-    localDeps = '';
-    localDepsCnt = 0;
-
-    exportDeps = '';
-  }
-};
+export const evaluate = (extraCode: string): any =>
+  Function('$', 'var _' + localDeps + exportDeps + extraCode)(externals);
 
 /**
  * Hydrate a built function.
