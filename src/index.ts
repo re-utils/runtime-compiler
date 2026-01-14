@@ -14,7 +14,10 @@ export type ExportedDependency<T> = number & {
   '~type': T;
 };
 
-const externals: any[] = [];
+/**
+ * External dependencies
+ */
+export const externals: any[] = [];
 
 let localDeps = '';
 let localDepsCnt = 0;
@@ -70,37 +73,26 @@ export const injectExternal = <T>(val: T): Value<T> =>
 /**
  * Evaluate to statements instead of a function.
  * Use in `default` and `build` mode.
+ *
+ * @example
+ * hydratedCode += `
+ *   import { externals as $ } from 'runtime-compiler';
+ *   ${evaluateToStatements()}
+ * `;
  */
 export const evaluateToStatements = (): string =>
   localDeps.length === 0
-    ? (exportDeps as any)
-    : (('let ' + localDeps.slice(1) + exportDeps) as any);
-
-/**
- * Evaluate code to a function.
- * Use in `build` mode.
- */
-export const evaluateToFn = (
-  extraCode: string,
-): Expression<(...args: any[]) => any> =>
-  ('$=>{var _' + localDeps + exportDeps + extraCode + '}') as any;
+    ? (exportDeps + ';' as any)
+    : (('{let ' + localDeps.slice(1) + exportDeps + '}') as any);
 
 /**
  * Run evaluated code.
  * Use in `default` mode.
  */
-export const evaluate = (extraCode: string): any =>
-  Function('$', 'var _' + localDeps + exportDeps + extraCode)(externals);
-
-/**
- * Hydrate a built function.
- * Use in `hydrate` mode.
- *
- * @example
- * hydratedCode += `
- *   import { hydrate } from 'runtime-compiler';
- *   const compiled = hydrate(${evaluateToFn(app)});
- * `;
- */
-export const hydrate = <T>(compiledFn: (externalDependencies: any[]) => T): T =>
-  compiledFn(externals);
+export const evaluate = (): any => {
+  // @ts-ignore
+  globalThis.__runtime_compiler__ = externals;
+  (0, eval)('{let $=__runtime_compiler__' + localDeps + exportDeps + '}');
+  // @ts-ignore
+  delete globalThis.__runtime_compiler__;
+}
