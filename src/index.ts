@@ -14,29 +14,49 @@ export type ExportedDependency<T> = number & {
   '~type': T;
 };
 
-/**
- * External dependencies
- */
-export const externals: any[] = [];
+export interface Scope {
+  body: string;
 
-let localDeps = '';
-let localDepsCnt = 0;
-
-let exportDeps = '';
-
-interface InjectDependencyFn {
-  <T>(val: Expression<T>): Identifier<T>;
-  <T>(val: string): Identifier<T>;
+  /**
+   * Next available id.
+   */
+  id: number;
 }
 
 /**
- * Inject a local dependency.
- * Use in `default` and `build` mode.
+ * Declare a variable in the current scope.
  */
-export const injectDependency: InjectDependencyFn = (val) => {
-  localDeps += ',$' + localDepsCnt + '=' + val;
-  return ('$' + localDepsCnt++) as any;
-};
+export const declareLocal:
+  | (<T>(scope: Scope, expr: Expression<T>) => Identifier<T>)
+  | ((scope: Scope, expr: string) => string) = (scope: Scope, expr: string) => (
+  (scope.body += 'let d' + scope.id + '=' + expr + ';'), 'd' + scope.id++
+);
+
+/**
+ * Export a local expression to a parent local variable
+ *
+ * @example
+ * // Fork scope
+ * const childScope = {
+ *   body: '',
+ *   id: parentScope.id
+ * };
+ * // let d0;{let d1=1;d0=d1}
+ * const id = exportLocal(childScope, declareLocal(childScope, '1'), parentScope); // d0
+ */
+export const exportLocal: (
+  | (<T>(scope: Scope, expr: Expression<T>, parentScope: Scope) => Identifier<T>)
+  | ((scope: Scope, expr: string, parentScope: Scope) => string)
+) = (scope: Scope, expr: string, parentScope: Scope) => {
+  const currentId = 'd' + parentScope.id++;
+  parentScope.body += 'let ' + currentId + ';{' + scope.body + currentId + '=' + expr + '}';
+  return currentId;
+}
+
+/**
+ * External dependencies
+ */
+export const $: any[] = [];
 
 /**
  * Export a local dependency.
@@ -44,10 +64,11 @@ export const injectDependency: InjectDependencyFn = (val) => {
  * @param value
  */
 export const exportDependency = <T>(
+  scope: Scope,
   value: Expression<T>,
 ): ExportedDependency<T> => (
-  (exportDeps += ';$[' + externals.length + ']=' + value),
-  (externals.push(null) - 1) as any
+  (scope.body += '$[' + $.length + ']=' + value + ';'),
+  ($.push(null) - 1) as any
 );
 
 /**
@@ -55,44 +76,26 @@ export const exportDependency = <T>(
  * Use in `hydrate` mode.
  */
 export const markExported = <T>(): ExportedDependency<T> =>
-  (externals.push(null) - 1) as any;
+  ($.push(null) - 1) as any;
 
 /**
  * Get the value of an exported dependency.
  * @param idx
  */
-export const getDependency = <T>(idx: ExportedDependency<T>): T =>
-  externals[idx];
+export const getDependency = <T>(idx: ExportedDependency<T>): T => $[idx];
 
 /**
  * Inject an external dependency.
  */
 export const injectExternal = <T>(val: T): Value<T> =>
-  ('$[' + (externals.push(val) - 1) + ']') as any;
-
-/**
- * Evaluate to statements instead of a function.
- * Use in `default` and `build` mode.
- *
- * @example
- * hydratedCode += `
- *   import { externals as $ } from 'runtime-compiler';
- *   ${evaluateToStatements()}
- * `;
- */
-export const evaluateToStatements = (): string =>
-  localDeps.length === 0
-    ? (exportDeps + ';' as any)
-    : (('{let ' + localDeps.slice(1) + exportDeps + '}') as any);
+  ('$[' + ($.push(val) - 1) + ']') as any;
 
 /**
  * Run evaluated code.
  * Use in `default` mode.
  */
-export const evaluate = (): any => {
+export const evaluate = (statements: string): void => {
   // @ts-ignore
-  globalThis.__runtime_compiler__ = externals;
-  (0, eval)('{let $=__runtime_compiler__' + localDeps + exportDeps + '}');
-  // @ts-ignore
-  delete globalThis.__runtime_compiler__;
-}
+  globalThis.__rt_externals__ = $;
+  (0, eval)('{let $=__rt_externals__;' + statements + '}');
+};
