@@ -1,8 +1,4 @@
-import {
-  injectExternal,
-  type Expression,
-  type Value,
-} from './index.ts';
+import { injectExternal, type Expression, type Value } from './index.ts';
 
 /**
  * Placeholder for `hydrate` mode.
