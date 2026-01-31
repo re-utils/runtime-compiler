@@ -107,4 +107,8 @@ export const evaluate = (): void => {
   // @ts-ignore
   globalThis.__rt_externals__ = $;
   (0, eval)('{let $=__rt_externals__;' + statements + '}');
+
+  // @ts-ignore
+  globalThis.__rt_externals__ = null;
+  statements = '';
 };
