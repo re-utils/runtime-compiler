@@ -82,6 +82,19 @@ export const exportScope:
 );
 
 /**
+ * Export a local expression.
+ * Use in `default` and `build` mode.
+ */
+export const exportExpr:
+  | (<T>(value: Expression<T>) => ExportedDependency<T>)
+  | (<T>(value: string) => ExportedDependency<T>) = (
+  value: string,
+) => (
+  (statements += '$[' + $.length + ']=' + value),
+  $.length++ as any
+);
+
+/**
  * Mark a slot to export a dependency.
  * Use in `hydrate` mode.
  */
