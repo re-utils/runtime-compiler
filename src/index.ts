@@ -1,3 +1,5 @@
+import { isHydrating } from "./config/index.ts";
+
 export type Expression<T> = string & {
   '~type': T;
 };
@@ -24,6 +26,7 @@ export type Scope = [
 
 /**
  * Declare a variable in the current scope.
+ * Use in `default` and `build` mode.
  */
 export const declareLocal:
   | (<T>(scope: Scope, expr: Expression<T>) => Identifier<T>)
@@ -32,14 +35,12 @@ export const declareLocal:
 );
 
 /**
- * Export a local expression to a parent local variable
+ * Export a local expression to a parent local variable.
+ * Use in `default` and `build` mode.
  *
  * @example
  * // Fork scope
- * const childScope = {
- *   body: '',
- *   id: parentScope.id
- * };
+ * const childScope = ['', parentScope.id];
  * // let d0;{let d1=1;d0=d1}
  * const id = exportLocal(childScope, declareLocal(childScope, '1'), parentScope); // d0
  */
@@ -59,6 +60,15 @@ export const exportLocal:
     'let ' + currentId + ';{' + scope[0] + currentId + '=' + expr + '}';
   return currentId;
 };
+
+/**
+ * Mark current available variable id to be already in use.
+ * Use in `hydrate` mode.
+ * @param scope
+ */
+export const markDeclared = (scope: Scope): void => {
+  scope[1]++;
+}
 
 /**
  * External dependencies
@@ -90,7 +100,7 @@ export const exportExpr:
   | (<T>(value: string) => ExportedDependency<T>) = (
   value: string,
 ) => (
-  (statements += '$[' + $.length + ']=' + value),
+  (statements += '$[' + $.length + ']=' + value + ';'),
   $.length++ as any
 );
 
@@ -104,24 +114,25 @@ export const markExported = <T>(): ExportedDependency<T> => $.length++ as any;
  * Get the value of an exported dependency.
  * @param idx
  */
-export const getDependency = <T>(idx: ExportedDependency<T>): T => $[idx];
+export const getDependency: <T>(idx: ExportedDependency<T>) => T = isHydrating
+  ? ((idx) => $[idx])
+  : ((idx) => {
+    if (statements.length > 0) {
+      // @ts-ignore
+      globalThis.__rt_externals__ = $;
+      (0, eval)('{let $=__rt_externals__;' + statements + '}');
+
+      // @ts-ignore
+      globalThis.__rt_externals__ = null;
+      statements = '';
+    }
+
+    return $[idx];
+  });
 
 /**
  * Inject an external dependency.
  */
-export const injectExternal = <T>(val: T): Value<T> =>
-  ('$[' + ($.push(val) - 1) + ']') as any;
-
-/**
- * Run evaluated code.
- * Use in `default` mode.
- */
-export const evaluate = (): void => {
-  // @ts-ignore
-  globalThis.__rt_externals__ = $;
-  (0, eval)('{let $=__rt_externals__;' + statements + '}');
-
-  // @ts-ignore
-  globalThis.__rt_externals__ = null;
-  statements = '';
-};
+export const injectExternal: <T>(val: T) => Value<T> = isHydrating
+  ? ((val) => ($.push(val), '' as any))
+  : ((val) => ('$[' + ($.push(val) - 1) + ']') as any);
