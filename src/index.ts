@@ -131,6 +131,15 @@ export const getDependency: <T>(idx: ExportedDependency<T>) => T = isHydrating
   });
 
 /**
+ * Get built statements and reset for next build.
+ */
+export const getStatements = (): string => {
+  const s = statements;
+  statements = '';
+  return s;
+}
+
+/**
  * Inject an external dependency.
  */
 export const injectExternal: <T>(val: T) => Value<T> = isHydrating
