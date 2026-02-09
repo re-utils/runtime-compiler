@@ -1,4 +1,4 @@
-import { isHydrating } from "./config/index.ts";
+import { isHydrating } from './config/index.ts';
 
 export type Expression<T> = string & {
   '~type': T;
@@ -68,7 +68,7 @@ export const exportLocal:
  */
 export const markDeclared = (scope: Scope): void => {
   scope[1]++;
-}
+};
 
 /**
  * External dependencies
@@ -97,11 +97,8 @@ export const exportScope:
  */
 export const exportExpr:
   | (<T>(value: Expression<T>) => ExportedDependency<T>)
-  | (<T>(value: string) => ExportedDependency<T>) = (
-  value: string,
-) => (
-  (statements += '$[' + $.length + ']=' + value + ';'),
-  $.length++ as any
+  | (<T>(value: string) => ExportedDependency<T>) = (value: string) => (
+  (statements += '$[' + $.length + ']=' + value + ';'), $.length++ as any
 );
 
 /**
@@ -112,23 +109,22 @@ export const markExported = <T>(): ExportedDependency<T> => $.length++ as any;
 
 /**
  * Get the value of an exported dependency.
+ * Use in `default` mode.
  * @param idx
  */
-export const getDependency: <T>(idx: ExportedDependency<T>) => T = isHydrating
-  ? ((idx) => $[idx])
-  : ((idx) => {
-    if (statements.length > 0) {
-      // @ts-ignore
-      globalThis.__rt_externals__ = $;
-      (0, eval)('{let $=__rt_externals__;' + statements + '}');
+export const getDependency = <T>(idx: ExportedDependency<T>): T => {
+  if (statements.length > 0) {
+    // @ts-ignore
+    globalThis.__rt_externals__ = $;
+    (0, eval)('{let $=__rt_externals__;' + statements + '}');
 
-      // @ts-ignore
-      globalThis.__rt_externals__ = null;
-      statements = '';
-    }
+    // @ts-ignore
+    globalThis.__rt_externals__ = null;
+    statements = '';
+  }
 
-    return $[idx];
-  });
+  return $[idx];
+};
 
 /**
  * Get built statements and reset for next build.
@@ -137,11 +133,11 @@ export const getStatements = (): string => {
   const s = statements;
   statements = '';
   return s;
-}
+};
 
 /**
  * Inject an external dependency.
  */
 export const injectExternal: <T>(val: T) => Value<T> = isHydrating
-  ? ((val) => ($.push(val), '' as any))
-  : ((val) => ('$[' + ($.push(val) - 1) + ']') as any);
+  ? (val) => ($.push(val), '' as any)
+  : (val) => ('$[' + ($.push(val) - 1) + ']') as any;
