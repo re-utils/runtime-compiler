@@ -16,13 +16,17 @@ export type ExportedDependency<T> = number & {
   '~type': T;
 };
 
-export type Scope = [
-  body: string,
+export interface Scope {
+  /**
+   * Current scope content
+   */
+  0: string;
+
   /**
    * Next available id.
    */
-  id: number,
-];
+  1: number;
+};
 
 /**
  * Declare a variable in the current scope.
