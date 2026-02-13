@@ -120,7 +120,9 @@ export const getDependency = <T>(idx: ExportedDependency<T>): T => {
 
     // @ts-ignore
     globalThis.__rt_externals__ = null;
+
     statements = '';
+    buildData = [];
   }
 
   return $[idx];
@@ -128,10 +130,14 @@ export const getDependency = <T>(idx: ExportedDependency<T>): T => {
 
 /**
  * Get built statements and reset for next build.
+ * Use in `build` mode.
  */
 export const getStatements = (): string => {
   const s = statements;
+
   statements = '';
+  buildData = [];
+
   return s;
 };
 
@@ -141,3 +147,18 @@ export const getStatements = (): string => {
 export const injectExternal: <T>(val: T) => Value<T> = isHydrating
   ? (val) => ($.push(val), '' as any)
   : (val) => ('$[' + ($.push(val) - 1) + ']') as any;
+
+/**
+ * Store temporary build data.
+ */
+export let buildData: any[] = [];
+
+let nextSlot = 0;
+/**
+ * @example
+ * const slot = createBuildSlot();
+ *
+ * // Reset after every build
+ * buildData[slot] ??= data;
+ */
+export const createBuildSlot = (): number => nextSlot++;
