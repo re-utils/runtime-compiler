@@ -26,17 +26,31 @@ export interface Scope {
    * Next available id.
    */
   1: number;
+
+  slice: () => this;
 };
+
+interface DeclareLocal {
+  <T>(scope: Scope, expr: Expression<T>): Identifier<T>;
+  (scope: Scope, expr: string): string;
+}
 
 /**
  * Declare a variable in the current scope.
  * Use in `default` and `build` mode.
  */
-export const declareLocal:
-  | (<T>(scope: Scope, expr: Expression<T>) => Identifier<T>)
-  | ((scope: Scope, expr: string) => string) = (scope: Scope, expr: string) => (
+export const declareLocal: DeclareLocal = (scope: Scope, expr: string) => (
   (scope[0] += 'let d' + scope[1] + '=' + expr + ';'), 'd' + scope[1]++
-);
+) as any;
+
+interface ExportLocal {
+  <T>(
+    scope: Scope,
+    expr: Expression<T>,
+    parentScope: Scope,
+  ): Identifier<T>;
+  (scope: Scope, expr: string, parentScope: Scope): string;
+}
 
 /**
  * Export a local expression to a parent local variable.
@@ -48,13 +62,7 @@ export const declareLocal:
  * // let d0;{let d1=1;d0=d1}
  * const id = exportLocal(childScope, declareLocal(childScope, '1'), parentScope); // d0
  */
-export const exportLocal:
-  | (<T>(
-      scope: Scope,
-      expr: Expression<T>,
-      parentScope: Scope,
-    ) => Identifier<T>)
-  | ((scope: Scope, expr: string, parentScope: Scope) => string) = (
+export const exportLocal: ExportLocal = (
   scope: Scope,
   expr: string,
   parentScope: Scope,
@@ -62,7 +70,7 @@ export const exportLocal:
   const currentId = 'd' + parentScope[1]++;
   parentScope[0] +=
     'let ' + currentId + ';{' + scope[0] + currentId + '=' + expr + '}';
-  return currentId;
+  return currentId as any;
 };
 
 /**
