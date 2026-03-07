@@ -18,7 +18,7 @@ export type ExportedDependency<T> = number & {
 
 export interface Scope {
   /**
-   * Current scope content
+   * Current scope content.
    */
   0: string;
 
@@ -26,6 +26,11 @@ export interface Scope {
    * Next available id.
    */
   1: number;
+
+  /**
+   * End scope content.
+   */
+  2: string;
 
   slice: () => this;
 };
@@ -69,7 +74,7 @@ export const exportLocal: ExportLocal = (
 ) => {
   const currentId = 'd' + parentScope[1]++;
   parentScope[0] +=
-    'let ' + currentId + ';{' + scope[0] + currentId + '=' + expr + '}';
+    'let ' + currentId + ';{' + scope[0] + scope[2] + currentId + '=' + expr + '}';
   return currentId as any;
 };
 
@@ -99,7 +104,7 @@ export const exportScope:
   scope: Scope,
   value: string,
 ) => (
-  (statements += '{' + scope[0] + '$[' + $.length + ']=' + value + '}'),
+  (statements += '{' + scope[0] + scope[2] + '$[' + $.length + ']=' + value + '}'),
   $.length++ as any
 );
 
