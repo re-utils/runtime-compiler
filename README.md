@@ -112,6 +112,8 @@ const check2 = artifact(check2Id);
 We can remove the codegen cost with flags:
 ```ts
 const compile = IS_AOT
+  // This is the compile() function after build, since
+  // we don't need to codegen anymore
   ? () => reserveArtifact()
   : (schema1) => {
     ...;
