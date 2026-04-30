@@ -37,6 +37,11 @@ switch (path) {
 }
 ```
 
+## What about AST transformations?
+For cases that code generation works, it is usually much easier to write and setup, compiles faster, and also has more flexibility.
+
+The output startup cost is higher than AST transformations though, but this library has primitives to minimize that additional cost.
+
 ## Writing codegen
 The first example was pretty simple, but what if we want to use an user-defined value?
 ```ts
