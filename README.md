@@ -1,7 +1,7 @@
 A code generation system.
 
 # Code generation
-Code generation is a trick use in a lot of high performance libraries, especially schema validators (TypeBox, Ajv, Sury, ...).
+Code generation is a trick used in a lot of high performance libraries, especially schema validators (TypeBox, Ajv, Sury, ...).
 ```ts
 const schema = {
   id: t.string,
@@ -17,7 +17,7 @@ const check = (0, eval)(`
 `);
 ```
 
-Backend frameworks like Elysia also uses it to optimize their request handling:
+Backend frameworks like Elysia also use it to optimize their request handling:
 ```ts
 // Not exactly what Elysia generates but u get the idea
 switch (path) {
@@ -37,8 +37,7 @@ switch (path) {
 }
 ```
 
-## What about AST transformations?
-For cases that code generation works, it is usually much easier to write and setup, compiles faster, and also has more flexibility.
+For cases that code generation works, it is usually much easier to write and setup than AST transformations, compiles faster, and also has more flexibility.
 
 The output startup cost is higher than AST transformations though, but this library has primitives to minimize that additional cost.
 

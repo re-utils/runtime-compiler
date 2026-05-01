@@ -17,6 +17,13 @@ export const artifact = <T>(a: Artifact<T>): T => $[a] as any;
 export const reserveArtifact = <T>(): Artifact<T> => ($.push(undefined) - 1) as any;
 
 /**
+ * @internal
+ */
+export const clearArtifacts = (): void => {
+  $.length = 0;
+};
+
+/**
  * Evaluate content with artifacts injected.
  */
 export const evaluate = (content: string): unknown =>
