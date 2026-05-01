@@ -28,7 +28,7 @@ await Promise.all([
           module: true,
           compress: {
             passes: 2,
-          }
+          },
         }),
       ],
     });

@@ -10,35 +10,28 @@ const getPromiseResolvers = (res: any, rej: any) => {
   curRej = rej;
 };
 
-export const config: {
-  hash: (str: string) => string;
-} = {
-  hash: (str) => {
-    let res = 0;
-    for (let i = 0; i < str.length; i++) res = (res << 5) - res + str.charCodeAt(0);
-    return res.toString(16);
-  },
+const hash = (str: string) => {
+  let res = 0;
+  for (let i = 0; i < str.length; i++) res = (res << 5) - res + str.charCodeAt(0);
+  return res.toString(16);
 };
+
+export const moduleBuilder = (mod: string, outputFile: string): string => (
+  (mod = JSON.stringify(mod)),
+  `import{writeFileSync as w}from"node:fs";import"runtime-compiler/env/build";import a from${
+    mod
+  };import{content as c}from'runtime-compiler/globals';let s=\`import"runtime-compiler/env/aot";import{$}from'runtime-compiler/artifact';export * from${
+    mod
+  };\${c}export default{\`;for(let k in a)s+=JSON.stringify(k)+\`:$[\${a[k]}],\`;w(${JSON.stringify(outputFile)},s+"}");postMessage()`
+);
 
 export const buildModule = async (
   buildDir: string,
   mod: string,
   outputFile: string,
 ): Promise<any> => {
-  const buildFile = path.join(buildDir, config.hash(mod) + '.js');
-
-  if (!existsSync(buildFile)) {
-    const modImport = JSON.stringify(mod);
-
-    await writeFile(
-      buildFile,
-      `import{writeFileSync as w}from"node:fs";import"runtime-compiler/env/build";import a from${
-        modImport
-      };import{content as c}from'runtime-compiler/globals';let s=\`import"runtime-compiler/env/aot";import{$}from'runtime-compiler/artifact';export * from${
-        modImport
-      };\${c}export default{\`;for(let k in a)s+=JSON.stringify(k)+\`:$[\${a[k]}],\`;w(${JSON.stringify(outputFile)},s+"}");postMessage()`,
-    );
-  }
+  const buildFile = path.join(buildDir, hash(mod) + '.js');
+  existsSync(buildFile) || (await writeFile(buildFile, moduleBuilder(mod, outputFile)));
 
   // Run the builder in a worker
   const promise = new Promise<any>(getPromiseResolvers);
