@@ -7,10 +7,10 @@ import { build } from 'rolldown';
 import terser from '@rollup/plugin-terser';
 
 const BUILD_DIR = join(import.meta.dirname, '.build');
-const MODULE = join(import.meta.dirname, 'main.ts');
+const MODULE = join(import.meta.dirname, 'src/main.ts');
 
-const OUTFILE = join(import.meta.dirname, 'index.js');
-const OUTTYPES = join(import.meta.dirname, 'index.d.ts');
+const OUTFILE = join(import.meta.dirname, 'lib/main.js');
+const OUTTYPES = join(import.meta.dirname, 'lib/main.d.ts');
 
 try {
   mkdirSync(BUILD_DIR);

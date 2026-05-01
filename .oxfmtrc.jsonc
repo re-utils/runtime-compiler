@@ -11,6 +11,9 @@
     "**/*.jsonc",
     "**/*.md",
     "**/bun.lock",
-    "examples/.build/**/*"
+
+    // Example stuff
+    "examples/.build/**/*",
+    "examples/lib/**/*"
   ],
 }

@@ -6,7 +6,7 @@ import type { Artifact } from '../artifact.ts';
 export type Artifacts = Record<any, Artifact<any>>;
 
 /**
- * Infer type for an artifact group
+ * Infer type for an artifact group.
  */
 export type InferArtifacts<T extends Artifacts> = {
   [K in keyof T]: T[K]['~'];
@@ -14,9 +14,9 @@ export type InferArtifacts<T extends Artifacts> = {
 
 export const moduleTypes = (modulePath: string): string => (
   (modulePath = JSON.stringify(modulePath)),
-  `import type T from${
+  `import T from${
     modulePath
-  };import type{InferArtifacts}from"runtime-compiler/build";export * from${
+  };import{InferArtifacts}from"runtime-compiler/build";export * from${
     modulePath
-  };declare const artifacts:InferArtifacts<T>;export default artifacts;`
+  };var artifacts:InferArtifacts<typeof T>;export default artifacts;`
 );

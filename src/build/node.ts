@@ -22,7 +22,7 @@ export const moduleBuilder = (mod: string, outputFile: string): string => (
     mod
   };import{content as c}from'runtime-compiler/globals';let s=\`import"runtime-compiler/env/aot";import{$}from'runtime-compiler/artifact';export * from${
     mod
-  };\${c}export default{\`;for(let k in a)s+=JSON.stringify(k)+\`:$[\${a[k]}],\`;w(${JSON.stringify(outputFile)},s+"}");postMessage()`
+  };\${c}export default{\`;for(let k in a)s+=JSON.stringify(k)+\`:$[\${a[k]}],\`;w(${JSON.stringify(outputFile)},s+"}");postMessage();`
 );
 
 export const buildModule = async (
@@ -30,7 +30,7 @@ export const buildModule = async (
   mod: string,
   outputFile: string,
 ): Promise<any> => {
-  const buildFile = path.join(buildDir, hash(mod) + '.js');
+  const buildFile = path.join(buildDir, hash(mod + '\x01' + outputFile) + '.js');
   existsSync(buildFile) || (await writeFile(buildFile, moduleBuilder(mod, outputFile)));
 
   // Run the builder in a worker

@@ -1,0 +1,1 @@
+import T from"/home/reve/Desktop/dev/TypeScript/Projects/Packages/runtime-compiler/examples/src/main.ts";import{InferArtifacts}from"runtime-compiler/build";export * from"/home/reve/Desktop/dev/TypeScript/Projects/Packages/runtime-compiler/examples/src/main.ts";var artifacts:InferArtifacts<typeof T>;export default artifacts;
