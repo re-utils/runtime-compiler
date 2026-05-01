@@ -28,8 +28,7 @@ await Promise.all([
           module: true,
           compress: {
             passes: 2,
-          },
-          maxWorkers: 8
+          }
         }),
       ],
     });
