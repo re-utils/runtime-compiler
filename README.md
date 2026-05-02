@@ -77,7 +77,7 @@ const buildCheck = (0, eval)(`(deps) => {
 const check = buildCheck([checkEmail]);
 ```
 
-# Problems
+## Problems
 Code generation has 2 main problems:
 - It has a startup time, memory usage and bundle size cost.
 - It does not work on certain runtimes.

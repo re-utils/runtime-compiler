@@ -1,5 +1,6 @@
-const s = [];
-s.push(void 0);
-s[0] = () => console.log("Hi");
-var t = { fn: s[0] };
-export { t as default };
+const $ = [];
+$.push(void 0);
+const message = "Hi";
+$[0] = () => console.log("Hi");
+var main_default = { fn: $[0] };
+export { main_default as default, message };

@@ -1,7 +1,7 @@
 {
   "name": "runtime-compiler",
   "version": "4.0.0",
-  "description": "An just-in-time and ahead-of-time compiler system.",
+  "description": "A compiler system.",
   "keywords": [],
   "homepage": "",
   "license": "MIT",

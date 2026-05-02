@@ -16,7 +16,25 @@ export const moduleTypes = (modulePath: string): string => (
   (modulePath = JSON.stringify(modulePath)),
   `import T from${
     modulePath
-  };import{InferArtifacts}from"runtime-compiler/build";export * from${
+  };import{InferArtifacts as I}from"runtime-compiler/build";export * from${
     modulePath
-  };var artifacts:InferArtifacts<typeof T>;export default artifacts;`
+  };var a:I<typeof T>;export default a;`
+);
+
+export const jitModule = (mod: string): string => (
+  (mod = JSON.stringify(mod)),
+  `import{evaluate as e}from"runtime-compiler/globals";import a from${
+    mod
+  };import{$}from"runtime-compiler/artifact";export * from${
+    mod
+  };e();var b={...a};for(let k in b)b[k]=$[b[k]];export default b`
+);
+
+export const aotModuleBuilder = (mod: string): string => (
+  (mod = JSON.stringify(mod)),
+  `import"runtime-compiler/env/build";import a from${
+    mod
+  };import{content as c}from"runtime-compiler/globals";let s=\`import"runtime-compiler/env/aot";import{$}from"runtime-compiler/artifact";export * from${
+    mod
+  };\${c}export default{\`;for(let k in a)s+=JSON.stringify(k)+\`:$[\${a[k]}],\`;s+="}";`
 );

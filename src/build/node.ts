@@ -1,8 +1,5 @@
-import { writeFile } from 'node:fs/promises';
-import path from 'node:path';
-import { existsSync } from 'node:fs';
-
-import { moduleTypes } from './index.ts';
+import { aotModuleBuilder as genericAOTModuleBuilder } from './index.ts';
+import { Worker, type WorkerOptions } from 'node:worker_threads';
 
 let curRes: () => void, curRej: () => void;
 const getPromiseResolvers = (res: any, rej: any) => {
@@ -10,38 +7,17 @@ const getPromiseResolvers = (res: any, rej: any) => {
   curRej = rej;
 };
 
-const hash = (str: string) => {
-  let res = 0;
-  for (let i = 0; i < str.length; i++) res = (res << 5) - res + str.charCodeAt(0);
-  return res.toString(16);
-};
+export const aotModuleBuilder = (mod: string, outputFile: string): string =>
+  genericAOTModuleBuilder(mod) +
+  `import{parentPort as p}from"node:worker_threads";import{writeFileSync as w}from"node:fs";w(${JSON.stringify(outputFile)},s);p.postMessage(null)`;
 
-export const moduleBuilder = (mod: string, outputFile: string): string => (
-  (mod = JSON.stringify(mod)),
-  `import{writeFileSync as w}from"node:fs";import"runtime-compiler/env/build";import a from${
-    mod
-  };import{content as c}from'runtime-compiler/globals';let s=\`import"runtime-compiler/env/aot";import{$}from'runtime-compiler/artifact';export * from${
-    mod
-  };\${c}export default{\`;for(let k in a)s+=JSON.stringify(k)+\`:$[\${a[k]}],\`;w(${JSON.stringify(outputFile)},s+"}");postMessage();`
-);
-
-export const buildModule = async (
-  buildDir: string,
-  mod: string,
-  outputFile: string,
-): Promise<any> => {
-  const buildFile = path.join(buildDir, hash(mod + '\x01' + outputFile) + '.js');
-  existsSync(buildFile) || (await writeFile(buildFile, moduleBuilder(mod, outputFile)));
-
+export const runAOTModuleBuilder = (mod: string | URL, workerOptions?: WorkerOptions): Promise<any> => {
   // Run the builder in a worker
   const promise = new Promise<any>(getPromiseResolvers);
 
-  const worker = new Worker(buildFile);
-  worker.onmessage = curRes;
-  worker.onerror = curRej;
+  const worker = new Worker(mod, workerOptions);
+  worker.once('message', curRes);
+  worker.once('error', curRej);
 
   return promise;
 };
-
-export const buildModuleTypes = (mod: string, outputFile: string): true | Promise<void> =>
-  existsSync(outputFile) || writeFile(outputFile, moduleTypes(mod));
