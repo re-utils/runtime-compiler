@@ -1,5 +1,8 @@
 A code generation system.
 
+# Usage
+See [examples](https://github.com/re-utils/runtime-compiler/tree/main/examples).
+
 # Code generation
 Code generation is a trick used in a lot of high performance libraries, especially schema validators (TypeBox, Ajv, Sury, ...).
 ```ts
