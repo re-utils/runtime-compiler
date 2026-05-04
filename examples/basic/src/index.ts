@@ -1,2 +1,4 @@
-import { artifact } from './main.entry.ts';
-artifact('fn')();
+import { fn } from './main.entry.ts';
+import { artifact } from 'runtime-compiler';
+
+artifact(fn)();
