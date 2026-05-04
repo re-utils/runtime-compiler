@@ -6,10 +6,7 @@ export let content = '';
 
 export const evaluate: () => void = IS_JIT
   ? () => {
-      content.length > 0 && (
-        evaluateWithArtifacts(content),
-        content = ''
-      );
+      content.length > 0 && (evaluateWithArtifacts(content), (content = ''));
     }
   : emptyFn;
 

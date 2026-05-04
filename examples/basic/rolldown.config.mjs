@@ -1,7 +1,9 @@
 import { defineConfig } from 'rolldown';
-import { minify } from 'terser';
+import { minify_sync } from 'terser';
 
 import rt from 'runtime-compiler/build/rolldown';
+
+const isProd = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
   input: 'src/index.ts',
@@ -20,7 +22,7 @@ export default defineConfig({
     {
       name: 'rolldown-plugin-terser',
       renderChunk: (code, chunk) =>
-        minify(
+        minify_sync(
           {
             [chunk.fileName]: code,
           },

@@ -18,4 +18,4 @@ export const reserveArtifact = <T>(): Artifact<T> => (__rtcpl_atf__.push(undefin
  */
 export const evaluate = (content: string): unknown =>
   // @ts-expect-error passing registered artifacts to evaluate.
-  ((globalThis.__rtcplatf__ = __rtcpl_atf__), (0, eval)(content));
+  ((globalThis.__rtcpl_atf__ = __rtcpl_atf__), (0, eval)(content));
