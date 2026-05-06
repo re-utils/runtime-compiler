@@ -1,8 +1,11 @@
-import type { HookFilter, Plugin } from 'rolldown';
+import type { Plugin } from 'rolldown';
 import { runInWorker } from './node-utils.ts';
 
 export interface Options {
-  filter: HookFilter;
+  filter: Exclude<
+    Plugin['transform'] & {},
+    (...args: any[]) => any
+  >['filter'] & {};
 }
 
 export default (options: Options): Plugin => ({

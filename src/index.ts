@@ -10,4 +10,6 @@ export const groupArtifacts: <T extends ArtifactsRecord>(o: T) => ArtifactGroup<
   ? (o) => (globalEvaluate(), (k) => __rtcpl_atf__[o[k]])
   : (o) => (k) => __rtcpl_atf__[o[k]];
 
-export const artifact = <T>(id: Artifact<T>): T => __rtcpl_atf__[id] as any;
+export const artifact: <T>(id: Artifact<T>) => T = IS_JIT
+  ? (id) => (globalEvaluate(), __rtcpl_atf__[id])
+  : (id) => __rtcpl_atf__[id] as any;

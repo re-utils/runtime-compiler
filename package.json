@@ -25,10 +25,12 @@
     "picocolors": "^1.1.1",
     "rolldown": "^1.0.0-rc.18",
     "terser": "^5.46.2",
-    "typescript": "^6.0.2",
-    "unplugin": "^3.0.0"
+    "typescript": "^6.0.2"
   },
   "trustedDependencies": [
     "@swc/core"
-  ]
+  ],
+  "optionalDependencies": {
+    "unplugin": "3.x"
+  }
 }
