@@ -1,14 +1,10 @@
-const __rtcpl_r__ = [], __rtcpl_aot_fns__ = [], __rtcpl_setup_aot__ = (f) => {
-	__rtcpl_aot_fns__.push(f);
-};
 let __rtcpl_aot_fn_idx__ = 0;
-const evaluate = () => __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_r__), importRef = (v) => __rtcpl_r__.push(v) - 1;
-__rtcpl_setup_aot__(($) => {
+const __rtcpl_r__ = [], __rtcpl_aot_fns__ = [($) => {
 	{
 		let External = $[0], check_023660d1f3d5eb88 = ((value) => typeof value == "string" && External[0].test(value));
 		return (value) => check_023660d1f3d5eb88(value);
 	}
-});
+}], evaluate = () => __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_r__), importRef = (v) => __rtcpl_r__.push(v) - 1;
 //#region \0rolldown/runtime.js
 var __defProp = Object.defineProperty, __exportAll = (all, no_symbols) => {
 	let target = {};
