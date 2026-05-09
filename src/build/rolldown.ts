@@ -105,15 +105,15 @@ export default (): Plugin => ({
     for (let i = 0, { bindings } = globalsImport; i < bindings.length; i++) {
       const { name, alias } = bindings[i];
       aotCode +=
-        name === 'artifact'
+        name === 'deref'
           ? `const ${alias}=i=>__rtcpl_atf__[i];`
           : name === 'emit'
             ? `const ${alias}=()=>{};`
             : name === 'evaluate'
               ? `const ${alias}=()=>__rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__);`
-              : name === 'reserveArtifact'
+              : name === 'createRef'
                 ? `const ${alias}=()=>__rtcpl_atf__.push(undefined)-1;`
-                : name === 'importArtifact'
+                : name === 'importRef'
                   ? `const ${alias}=v=>__rtcpl_atf__.push(v)-1;`
                   : '';
     }

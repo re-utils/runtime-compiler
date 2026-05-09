@@ -1,17 +1,14 @@
 import { IS_AOT, IS_BUILD } from './env/index.ts';
 import { emptyFn } from './utils.ts';
 
-const __rtcpl_atf__: unknown[] = [];
+const refs: unknown[] = [];
 
-export type Artifact<T> = number & {
+export type Ref<T> = number & {
   '~': T;
 };
 
-/* #__NO_SIDE_EFFECTS__ */
-export const importArtifact = <T>(value: T): Artifact<T> => (__rtcpl_atf__.push(value) - 1) as any;
-
-/* #__NO_SIDE_EFFECTS__ */
-export const reserveArtifact = <T>(): Artifact<T> => (__rtcpl_atf__.push(undefined) - 1) as any;
+export const importRef = <T>(value: T): Ref<T> => (refs.push(value) - 1) as any;
+export const createRef = <T>(): Ref<T> => (refs.push(undefined) - 1) as any;
 
 let content = '';
 /**
@@ -21,7 +18,7 @@ let content = '';
 export let __rtcpl_ct__: string[] = [];
 
 export let evaluate: <T>() => T = IS_AOT
-  ? () => __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__)
+  ? () => __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](refs)
   : IS_BUILD
     ? () => {
         __rtcpl_ct__.push(content);
@@ -29,13 +26,13 @@ export let evaluate: <T>() => T = IS_AOT
         const currentContent = content;
         content = '';
 
-        if (currentContent.length > 0) return (0, eval)(`$=>{${currentContent}}`)(__rtcpl_atf__);
+        if (currentContent.length > 0) return (0, eval)(`$=>{${currentContent}}`)(refs);
       }
     : () => {
         const currentContent = content;
         content = '';
 
-        if (currentContent.length > 0) return (0, eval)(`$=>{${currentContent}}`)(__rtcpl_atf__);
+        if (currentContent.length > 0) return (0, eval)(`$=>{${currentContent}}`)(refs);
       };
 
 export const emit: (code: string) => void = IS_AOT
@@ -55,8 +52,4 @@ export const __rtcpl_setup_aot__ = (fn: (args: any[]) => any): void => {
   __rtcpl_aot_fns__.push(fn);
 };
 
-// Access artifacts
-export type ArtifactsRecord = Record<any, Artifact<any>>;
-export type ArtifactGroup<T extends ArtifactsRecord> = <K extends keyof T>(k: K) => T[K]['~'];
-
-export const artifact: <T>(id: Artifact<T>) => T = (id) => __rtcpl_atf__[id] as any;
+export const deref: <T>(id: Ref<T>) => T = (id) => refs[id] as any;
