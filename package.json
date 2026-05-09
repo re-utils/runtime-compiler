@@ -19,18 +19,17 @@
     "@types/deno": "^2.5.0",
     "@types/node": "^25.5.0",
     "chokidar": "^5.0.0",
+    "esbuild": "^0.28.0",
     "mitata": "^1.0.34",
     "oxc-transform": "^0.121.0",
     "oxfmt": "^0.41.0",
     "picocolors": "^1.1.1",
-    "rolldown": "^1.0.0-rc.18",
+    "rolldown": "^1.0.0",
     "terser": "^5.46.2",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vite": "^8.0.10"
   },
   "trustedDependencies": [
     "@swc/core"
-  ],
-  "optionalDependencies": {
-    "unplugin": "3.x"
-  }
+  ]
 }
