@@ -4,7 +4,10 @@ import { build } from 'rolldown';
 import rt from 'runtime-compiler/build/rolldown';
 
 build({
-  input: 'src/index.ts',
+  input: {
+    basic: 'src/basic.ts',
+    minimal: 'src/minimal.ts'
+  },
   output: {
     dir: 'dist',
     minify: {

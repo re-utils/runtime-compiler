@@ -112,7 +112,7 @@ export default (): Plugin => ({
           : name === 'emit'
             ? `const ${alias}=()=>{};`
             : name === 'evaluate'
-              ? `const ${alias}=()=>{__rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__)};`
+              ? `const ${alias}=()=>__rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__);`
               : name === 'reserveArtifact'
                 ? `const ${alias}=()=>__rtcpl_atf__.push(undefined)-1;`
                 : name === 'importArtifact'

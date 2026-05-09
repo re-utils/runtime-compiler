@@ -20,23 +20,24 @@ let content = '';
  */
 export let __rtcpl_ct__: string[] = [];
 
-export let evaluate: () => void = IS_AOT
-  ? () => {
-      __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__);
-    }
+export let evaluate: <T>() => T = IS_AOT
+  ? () =>  __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__)
   : IS_BUILD
     ? () => {
+        __rtcpl_ct__.push(content);
+
         const currentContent = content;
         content = '';
 
-        __rtcpl_ct__.push(currentContent);
-        currentContent.length > 0 && (0, eval)(`$=>{${currentContent}}`)(__rtcpl_atf__);
+        if (currentContent.length > 0)
+          return (0, eval)(`$=>{${currentContent}}`)(__rtcpl_atf__);
       }
     : () => {
         const currentContent = content;
         content = '';
 
-        currentContent.length > 0 && (0, eval)(`$=>{${currentContent}}`)(__rtcpl_atf__);
+        if (currentContent.length > 0)
+          return (0, eval)(`$=>{${currentContent}}`)(__rtcpl_atf__);
       };
 
 export const emit: (code: string) => void = IS_AOT

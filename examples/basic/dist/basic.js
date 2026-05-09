@@ -1,0 +1,1 @@
+const e=[],t=[],n=e=>{t.push(e)};let r=0;const i=t=>e[t],a=()=>t[r++](e),o=()=>e.push(void 0)-1;n(e=>{e[0]=()=>console.log(`Hi`)});const s=o();a(),i(s)();
