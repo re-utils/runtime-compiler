@@ -1,5 +1,4 @@
 import { IS_AOT, IS_BUILD } from 'runtime-compiler/env';
-
 import { emit, evaluate, artifact, reserveArtifact } from 'runtime-compiler/globals';
 
 // Reserve an artifact slot to build to later
