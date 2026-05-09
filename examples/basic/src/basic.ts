@@ -7,8 +7,7 @@ const fn = reserveArtifact<() => void>();
 // Only emit code if not in AOT mode
 IS_AOT || emit(`$[${fn}]=()=>console.log("Hi");`);
 
-// Can skip operations that does not
-// relate to building code in BUILD mode
+// Only log when building
 IS_BUILD && console.log('Building...');
 
 // Evaluate before accessing the artifacts
