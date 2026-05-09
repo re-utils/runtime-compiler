@@ -1,5 +1,5 @@
 import { build } from 'rolldown';
-import rt from 'runtime-compiler/build/rolldown';
+import rtc from 'runtime-compiler/build/rolldown';
 
 build({
   input: {
@@ -14,7 +14,6 @@ build({
     },
   },
   plugins: [
-    // AOT build (should be the last transform step)
-    rt(),
+    rtc(),
   ],
 });
