@@ -56,6 +56,10 @@ export default (): Plugin => ({
     handler: () => false,
   },
   renderChunk: async (code, { imports }) => {
+    // Replace 'runtime-compiler/globals' and 'runtime-compiler/env' import
+    // with their equivalent in AOT mode
+    // Also run the module in build mode and insert the result to the final code
+
     const globalsImportIdx = imports.indexOf('runtime-compiler/globals');
     if (globalsImportIdx === -1) return null;
     imports.splice(globalsImportIdx);
@@ -88,9 +92,13 @@ export default (): Plugin => ({
       }
     }
 
-    // Build AOT code
     let aotCode =
-      'const __rtcpl_r__=[],__rtcpl_aot_fns__=[],__rtcpl_setup_aot__=f=>{__rtcpl_aot_fns__.push(f)};let __rtcpl_aot_fn_idx__=0;';
+      'let __rtcpl_aot_fn_idx__=0;const __rtcpl_r__=[],__rtcpl_aot_fns__=[';
+
+    // Load built code
+    for (let i = 0, codes = await runInWorker(code); i < codes.length; i++)
+      aotCode += `$=>{${codes[i]}},`;
+    aotCode += '];';
 
     // Load bindings
     for (let i = 0, { bindings } = envImport; i < bindings.length; i++) {
@@ -117,10 +125,6 @@ export default (): Plugin => ({
                   ? `const ${alias}=v=>__rtcpl_r__.push(v)-1;`
                   : '';
     }
-
-    // Load built code
-    for (let i = 0, codes = await runInWorker(code); i < codes.length; i++)
-      aotCode += `__rtcpl_setup_aot__($=>{${codes[i]}});`;
 
     // Remove /env and /globals import
     aotCode +=

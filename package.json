@@ -1,7 +1,7 @@
 {
   "name": "runtime-compiler",
-  "version": "4.0.1",
-  "description": "A compiler system.",
+  "version": "4.0.2",
+  "description": "A code generation system.",
   "keywords": [],
   "homepage": "",
   "license": "MIT",

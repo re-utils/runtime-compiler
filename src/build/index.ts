@@ -8,14 +8,17 @@ export const getPromiseResolvers = (res: any, rej: any): void => {
 
 const workerOptions: WorkerOptions = { eval: true };
 
+/**
+ * Requires code to not bundle "runtime-compiler/env" and "runtime-compiler/globals"
+ */
 export const runInWorker = (code: string): Promise<string[]> => {
   const p = new Promise<any>(getPromiseResolvers);
 
   const worker = new Worker(
-    `import"runtime-compiler/env/build";import{__rtcpl_ct__}from"runtime-compiler/globals";import{parentPort as __rtcpl_pp__}from"node:worker_threads";${
+    `import"runtime-compiler/env/build";${
       // Run code in BUILD mode
       code
-    };\n__rtcpl_pp__.postMessage(__rtcpl_ct__)`,
+    };\nimport{__rtcpl_ct__}from"runtime-compiler/globals";import{parentPort as __rtcpl_pp__}from"node:worker_threads";__rtcpl_pp__.postMessage(__rtcpl_ct__)`,
     workerOptions,
   );
   worker.once('message', curRes);
