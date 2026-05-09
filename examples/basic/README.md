@@ -2,9 +2,9 @@
 # Build the package
 bun task build
 
-# Dev mode doesn't require build
-bun src/index.ts
+# Build ahead-of-time
+bun build.ts
 
-# Prod build
-bun rolldown -c rolldown.config.mjs
+# Run the file directly also works
+bun src/basic.ts
 ```

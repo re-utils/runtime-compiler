@@ -11,10 +11,13 @@ const workerOptions: WorkerOptions = { eval: true };
 export const runInWorker = (code: string): Promise<string[]> => {
   const p = new Promise<any>(getPromiseResolvers);
 
-  const worker = new Worker(`import"runtime-compiler/env/build";import{__rtcpl_ct__}from"runtime-compiler/globals";import{parentPort as __rtcpl_pp__}from"node:worker_threads";${
-    // Run code in BUILD mode
-    code
-  };\n__rtcpl_pp__.postMessage(__rtcpl_ct__)`, workerOptions);
+  const worker = new Worker(
+    `import"runtime-compiler/env/build";import{__rtcpl_ct__}from"runtime-compiler/globals";import{parentPort as __rtcpl_pp__}from"node:worker_threads";${
+      // Run code in BUILD mode
+      code
+    };\n__rtcpl_pp__.postMessage(__rtcpl_ct__)`,
+    workerOptions,
+  );
   worker.once('message', curRes);
   worker.once('error', curRej);
 

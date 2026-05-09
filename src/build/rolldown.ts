@@ -47,34 +47,6 @@ const parseImportBindings = (code: string, start: number, end: number): ImportSt
   };
 };
 
-export const parseImports = (
-  code: string,
-): {
-  envImports: ImportStatement;
-  globalsImports: ImportStatement;
-} => {
-  let envImports: ImportStatement | undefined;
-  let globalsImports: ImportStatement | undefined;
-
-  for (
-    let start = 0, eol = code.indexOf('\n');
-    eol > -1 && (envImports == null || globalsImports == null);
-    eol = code.indexOf('\n', (start = eol + 1))
-  ) {
-    if (code.startsWith('import', start)) {
-      if (code.endsWith('"runtime-compiler/env";', eol))
-        envImports = parseImportBindings(code, start, eol);
-      else if (code.endsWith('"runtime-compiler/globals";', eol))
-        globalsImports = parseImportBindings(code, start, eol);
-    }
-  }
-
-  return {
-    envImports,
-    globalsImports,
-  } as any;
-};
-
 export default (): Plugin => ({
   name: 'rolldown-plugin-runtime-compiler',
   resolveId: {
@@ -83,19 +55,45 @@ export default (): Plugin => ({
     },
     handler: () => false,
   },
-  renderChunk: async (code, chunk) => {
-    if (
-      !chunk.imports.includes('runtime-compiler/globals') ||
-      !chunk.imports.includes('runtime-compiler/env')
-    )
-      return null;
+  renderChunk: async (code, { imports }) => {
+    const globalsImportIdx = imports.indexOf('runtime-compiler/globals');
+    if (globalsImportIdx === -1) return null;
+    imports.splice(globalsImportIdx);
 
-    const { envImports, globalsImports } = parseImports(code);
+    const envImportIdx = imports.indexOf('runtime-compiler/env');
+
+    // Resolve import statements
+    let envImport: ImportStatement = null as any;
+    let globalsImport: ImportStatement = null as any;
+
+    if (envImportIdx === -1)
+      envImport = {
+        bindings: [],
+        start: 0,
+        end: 0,
+      };
+    else imports.splice(envImportIdx, 1);
+
+    for (
+      let start = 0, eol = code.indexOf('\n');
+      // Run until both imports are resolved
+      eol > -1 && (envImport == null || globalsImport == null);
+      eol = code.indexOf('\n', (start = eol + 1))
+    ) {
+      if (code.startsWith('import', start)) {
+        if (code.endsWith('"runtime-compiler/env";', eol))
+          envImport = parseImportBindings(code, start, eol);
+        else if (code.endsWith('"runtime-compiler/globals";', eol))
+          globalsImport = parseImportBindings(code, start, eol);
+      }
+    }
+
+    // Build AOT code
     let aotCode =
       'const __rtcpl_atf__=[],__rtcpl_aot_fns__=[],__rtcpl_setup_aot__=f=>{__rtcpl_aot_fns__.push(f)};let __rtcpl_aot_fn_idx__=0;';
 
     // Load bindings
-    for (let i = 0, { bindings } = envImports; i < bindings.length; i++) {
+    for (let i = 0, { bindings } = envImport; i < bindings.length; i++) {
       const { name, alias } = bindings[i];
       aotCode +=
         name === 'IS_AOT'
@@ -104,7 +102,7 @@ export default (): Plugin => ({
             ? `const ${alias}=false;`
             : '';
     }
-    for (let i = 0, { bindings } = globalsImports; i < bindings.length; i++) {
+    for (let i = 0, { bindings } = globalsImport; i < bindings.length; i++) {
       const { name, alias } = bindings[i];
       aotCode +=
         name === 'artifact'
@@ -124,14 +122,15 @@ export default (): Plugin => ({
     for (let i = 0, codes = await runInWorker(code); i < codes.length; i++)
       aotCode += `__rtcpl_setup_aot__($=>{${codes[i]}});`;
 
+    // Remove /env and /globals import
     aotCode +=
-      envImports.start < globalsImports.start
-        ? code.slice(0, envImports.start) +
-          code.slice(envImports.end, globalsImports.start) +
-          code.slice(globalsImports.end)
-        : code.slice(0, globalsImports.start) +
-          code.slice(globalsImports.end, envImports.start) +
-          code.slice(envImports.end);
+      envImport.start < globalsImport.start
+        ? code.slice(0, envImport.start) +
+          code.slice(envImport.end, globalsImport.start) +
+          code.slice(globalsImport.end)
+        : code.slice(0, globalsImport.start) +
+          code.slice(globalsImport.end, envImport.start) +
+          code.slice(envImport.end);
 
     return {
       code: aotCode,
