@@ -2,7 +2,7 @@ const __rtcpl_atf__ = [], __rtcpl_aot_fns__ = [], __rtcpl_setup_aot__ = (f) => {
 	__rtcpl_aot_fns__.push(f);
 };
 let __rtcpl_aot_fn_idx__ = 0;
-const evaluate = () => __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__);
+const evaluate = () => __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__), importRef = (v) => __rtcpl_atf__.push(v) - 1;
 __rtcpl_setup_aot__(($) => {
 	{
 		let External = $[0], check_023660d1f3d5eb88 = ((value) => typeof value == "string" && External[0].test(value));
@@ -2662,6 +2662,6 @@ function Build(...args) {
 	let stack = new Stack(context, schema), build = new BuildContext(HasUnevaluated(context, schema)), call = CreateFunction(stack, build, schema, "value"), functions = GetFunctions();
 	return new BuildResult(context, schema, GetExternal(), functions, call, build.UseUnevaluated());
 }
-const fn = ((schema) => (Build({}, schema).External(), evaluate()))(String$1({ pattern: /abc/ }));
+const fn = ((schema) => (importRef(Build({}, schema).External().variables), evaluate()))(String$1({ pattern: /abc/ }));
 console.log(fn("abc"));
 //#endregion
