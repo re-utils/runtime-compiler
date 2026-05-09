@@ -90,7 +90,7 @@ export default (): Plugin => ({
 
     // Build AOT code
     let aotCode =
-      'const __rtcpl_atf__=[],__rtcpl_aot_fns__=[],__rtcpl_setup_aot__=f=>{__rtcpl_aot_fns__.push(f)};let __rtcpl_aot_fn_idx__=0;';
+      'const __rtcpl_r__=[],__rtcpl_aot_fns__=[],__rtcpl_setup_aot__=f=>{__rtcpl_aot_fns__.push(f)};let __rtcpl_aot_fn_idx__=0;';
 
     // Load bindings
     for (let i = 0, { bindings } = envImport; i < bindings.length; i++) {
@@ -106,15 +106,15 @@ export default (): Plugin => ({
       const { name, alias } = bindings[i];
       aotCode +=
         name === 'deref'
-          ? `const ${alias}=i=>__rtcpl_atf__[i];`
+          ? `const ${alias}=i=>__rtcpl_r__[i];`
           : name === 'emit'
             ? `const ${alias}=()=>{};`
             : name === 'evaluate'
-              ? `const ${alias}=()=>__rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_atf__);`
+              ? `const ${alias}=()=>__rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_r__);`
               : name === 'createRef'
-                ? `const ${alias}=()=>__rtcpl_atf__.push(undefined)-1;`
+                ? `const ${alias}=()=>__rtcpl_r__.push(undefined)-1;`
                 : name === 'importRef'
-                  ? `const ${alias}=v=>__rtcpl_atf__.push(v)-1;`
+                  ? `const ${alias}=v=>__rtcpl_r__.push(v)-1;`
                   : '';
     }
 
