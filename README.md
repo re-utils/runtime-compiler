@@ -2,7 +2,7 @@ A code generation system.
 
 # Usage
 ```ts
-import { IS_AOT, IS_BUILD } from 'runtime-compiler/env';
+import { IS_AOT } from 'runtime-compiler/env';
 import { emit, evaluate } from 'runtime-compiler/globals';
 
 // Only emit code if not in AOT mode
