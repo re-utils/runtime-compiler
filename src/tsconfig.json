@@ -14,6 +14,9 @@
 
     // Isolated declarations
     "isolatedDeclarations": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+
+    // Include node
+    "types": ["@types/node"]
   }
 }

@@ -15,18 +15,30 @@ const fn = evaluate<() => void>(IS_AOT || `return()=>console.log("Hi")`);
 IS_BUILD || fn();
 ```
 
-Build with `rolldown` or `vite`:
+Build with `rolldown`:
 ```ts
 ...
-import rtc from 'runtime-compiler/build/rolldown';
+import rtc from 'runtime-compiler/rolldown';
 
 export default defineConfig({
-  ...,
-  plugins: [
-    ...,
-    rtc()
-  ]
+  plugins: [rtc()]
 });
 ```
 
-You only need to build when the target runtime doesn't allow `eval()`.
+Or Vite:
+```ts
+import rtc from 'runtime-compiler/rolldown';
+
+export default defineConfig({
+  // Only run this plugin on build
+  build: {
+    rolldownOptions: {
+      plugins: [rtc()]
+    }
+  }
+});
+```
+
+## Limitations
+- AOT only works if all `evaluate()` calls are at startup time.
+- Dependencies marked as external that uses `runtime-compiler` will run in JIT mode even after AOT build.

@@ -29,11 +29,14 @@ export const runInWorker = (code: string): Promise<string[]> => {
 
 /**
  * Requires code to not bundle "runtime-compiler/env" and "runtime-compiler/globals"
+ *
+ * @example
+ * writeFileSync('preload.js', compile(await runInWorker(code)));
+ * code = 'import"./preload.js";' + code;
  */
-export const compile = async (code: string): Promise<string> => {
+export const compile = (codes: string[]): string => {
   let str =
     'import"runtime-compiler/env/aot";import{__rtcpl_aot_fns__}from"runtime-compiler/globals";__rtcpl_aot_fns__.push(';
-  for (let codes = await runInWorker(code), i = codes.length - 1; i > -1; i--)
-    str += `$=>{${codes[i]}},`;
-  return str + ');' + code;
+  for (let i = codes.length - 1; i > -1; i--) str += `$=>{${codes[i]}},`;
+  return str + ');';
 };

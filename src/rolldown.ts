@@ -1,5 +1,5 @@
 import type { Plugin } from 'rolldown';
-import { runInWorker } from './index.ts';
+import { runInWorker } from './build.ts';
 
 interface ImportBinding {
   name: string;
@@ -60,23 +60,25 @@ export default (): Plugin => ({
     // with their equivalent in AOT mode
     // Also run the module in build mode and insert the result to the final code
 
-    const globalsImportIdx = imports.indexOf('runtime-compiler/globals');
-    if (globalsImportIdx === -1) return null;
-    imports.splice(globalsImportIdx);
-
-    const envImportIdx = imports.indexOf('runtime-compiler/env');
+    {
+      const globalsImportIdx = imports.indexOf('runtime-compiler/globals');
+      if (globalsImportIdx === -1) return null;
+      imports.splice(globalsImportIdx);
+    }
 
     // Resolve import statements
-    let envImport: ImportStatement = null as any;
     let globalsImport: ImportStatement = null as any;
-
-    if (envImportIdx === -1)
-      envImport = {
-        bindings: [],
-        start: 0,
-        end: 0,
-      };
-    else imports.splice(envImportIdx, 1);
+    let envImport: ImportStatement = null as any;
+    {
+      const envImportIdx = imports.indexOf('runtime-compiler/env');
+      if (envImportIdx === -1)
+        envImport = {
+          bindings: [],
+          start: 0,
+          end: 0,
+        };
+      else imports.splice(envImportIdx, 1);
+    }
 
     for (
       let start = 0, eol = code.indexOf('\n');
@@ -92,9 +94,8 @@ export default (): Plugin => ({
       }
     }
 
-    let aotCode = 'const __rtcpl_r__=[],__rtcpl_aot_fns__=[';
-
     // Load built code
+    let aotCode = 'const __rtcpl_r__=[],__rtcpl_aot_fns__=[';
     for (let codes = await runInWorker(code), i = codes.length - 1; i > -1; i--)
       aotCode += `$=>{${codes[i]}},`;
     aotCode += ']';
@@ -134,8 +135,6 @@ export default (): Plugin => ({
           code.slice(globalsImport.end, envImport.start) +
           code.slice(envImport.end));
 
-    return {
-      code: aotCode,
-    };
+    return aotCode;
   },
 });
