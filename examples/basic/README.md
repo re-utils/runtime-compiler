@@ -3,7 +3,7 @@
 bun task build
 
 # Build ahead-of-time
-bun build.ts
+bun x rolldown -c rolldown.config.ts
 
 # Run the file directly also works
 bun src/basic.ts
