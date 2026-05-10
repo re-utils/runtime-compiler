@@ -1,7 +1,8 @@
-import { build } from 'rolldown';
+// @ts-check
+import { defineConfig } from 'rolldown';
 import rtc from 'runtime-compiler/build/rolldown';
 
-build({
+export default defineConfig({
   input: {
     typebox: 'src/typebox.ts',
     basic: 'src/basic.ts',

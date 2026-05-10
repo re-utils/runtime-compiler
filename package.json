@@ -2,10 +2,10 @@
   "name": "runtime-compiler",
   "version": "4.0.4",
   "description": "A code generation system.",
-  "keywords": [],
+  "keywords": ["rolldown-plugin", "vite-plugin"],
   "homepage": "",
   "license": "MIT",
-  "repository": "",
+  "repository": "re-utils/runtime-compiler",
   "type": "module",
   "scripts": {
     "task": "bun scripts/task.ts",
