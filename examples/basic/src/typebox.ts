@@ -9,11 +9,15 @@ const compile = <T extends XSchema>(schema: T): ((input: unknown) => input is St
 
   const external = result.External();
   const externalRef = importRef(external.variables);
-  return evaluate(IS_AOT || `const ${external.identifier}=$[${externalRef}];${result.Functions().join(';')};return(value)=>${result.Entry()}`);
+
+  return evaluate(
+    IS_AOT ||
+      `const ${external.identifier}=$[${externalRef}];${result.Functions().join(';')};return(value)=>${result.Entry()}`,
+  );
 };
 
 const fn = compile(Type.String({ pattern: /abc/ }));
-const fn1 = compile(Type.Refine({}, value => typeof value === 'string'))
+const fn1 = compile(Type.Refine({}, (value) => typeof value === 'string'));
 
 if (!IS_BUILD) {
   console.log(fn('abc'));

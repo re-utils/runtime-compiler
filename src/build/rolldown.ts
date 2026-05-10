@@ -124,7 +124,8 @@ export default (): Plugin => ({
     }
 
     // Remove /env and /globals import
-    aotCode += ';' +
+    aotCode +=
+      ';' +
       (envImport.start < globalsImport.start
         ? code.slice(0, envImport.start) +
           code.slice(envImport.end, globalsImport.start) +
