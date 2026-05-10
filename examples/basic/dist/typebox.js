@@ -1,10 +1,10 @@
-let __rtcpl_aot_fn_idx__ = 0;
 const __rtcpl_r__ = [], __rtcpl_aot_fns__ = [($) => {
-	{
-		let External = $[0], check_023660d1f3d5eb88 = ((value) => typeof value == "string" && External[0].test(value));
-		return (value) => check_023660d1f3d5eb88(value);
-	}
-}], evaluate = () => __rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_r__), importRef = (v) => __rtcpl_r__.push(v) - 1;
+	let External = $[1], check_6b7cc2cdfa418a80 = ((value) => External[0].every((refinement, _) => refinement.check(value)));
+	return (value) => check_6b7cc2cdfa418a80(value);
+}, ($) => {
+	let External = $[0], check_023660d1f3d5eb88 = ((value) => typeof value == "string" && External[0].test(value));
+	return (value) => check_023660d1f3d5eb88(value);
+}], evaluate = (_) => __rtcpl_aot_fns__.pop()(__rtcpl_r__), importRef = (v) => __rtcpl_r__.push(v) - 1;
 //#region \0rolldown/runtime.js
 var __defProp = Object.defineProperty, __exportAll = (all, no_symbols) => {
 	let target = {};
@@ -476,6 +476,45 @@ function IsDate$1(value) {
 	return value instanceof globalThis.Date;
 }
 //#endregion
+//#region ../../node_modules/typebox/build/system/memory/clone.mjs
+function IsGuard$1(value) {
+	return IsObject$1(value) && HasPropertyKey$1(value, "~guard");
+}
+function FromGuard(value) {
+	return value;
+}
+function FromArray$2(value) {
+	return value.map((value) => FromValue$2(value));
+}
+function FromObject$2(value) {
+	let result = {}, descriptors = Object.getOwnPropertyDescriptors(value);
+	for (let key of Object.keys(descriptors)) {
+		let descriptor = descriptors[key];
+		HasPropertyKey$1(descriptor, "value") && Object.defineProperty(result, key, {
+			...descriptor,
+			value: FromValue$2(descriptor.value)
+		});
+	}
+	return result;
+}
+function FromRegExp$1(value) {
+	return new RegExp(value.source, value.flags);
+}
+function FromUnknown(value) {
+	return value;
+}
+function FromValue$2(value) {
+	return value instanceof RegExp ? FromRegExp$1(value) : IsGuard$1(value) ? FromGuard(value) : IsArray$1(value) ? FromArray$2(value) : IsObject$1(value) ? FromObject$2(value) : FromUnknown(value);
+}
+/**
+* Clones a value using the TypeBox type cloning strategy. This function preserves non-enumerable
+* properties from the source value. This is to ensure cloned types retain discriminable
+* hidden properties.
+*/
+function Clone(value) {
+	return Metrics.clone += 1, FromValue$2(value);
+}
+//#endregion
 //#region ../../node_modules/typebox/build/system/settings/settings.mjs
 const settings = {
 	immutableTypes: !1,
@@ -515,6 +554,34 @@ function Create(hidden, enumerable, options = {}) {
 	Metrics.create += 1;
 	let settings = Get$2(), withOptions = Merge(enumerable, options), withHidden = settings.enumerableKind ? Merge(withOptions, hidden) : MergeHidden(withOptions, hidden);
 	return settings.immutableTypes ? Object.freeze(withHidden) : withHidden;
+}
+//#endregion
+//#region ../../node_modules/typebox/build/system/memory/update.mjs
+/**
+* Updates a value with new properties while preserving property enumerability. Use this function to modify
+* existing types without altering their configuration.
+*/
+function Update(current, hidden, enumerable) {
+	Metrics.update += 1;
+	let settings = Get$2(), result = Clone(current);
+	for (let key of Object.keys(hidden)) Object.defineProperty(result, key, {
+		configurable: !0,
+		writable: !0,
+		enumerable: settings.enumerableKind,
+		value: hidden[key]
+	});
+	for (let key of Object.keys(enumerable)) Object.defineProperty(result, key, {
+		configurable: !0,
+		enumerable: !0,
+		writable: !0,
+		value: enumerable[key]
+	});
+	return result;
+}
+//#endregion
+//#region ../../node_modules/typebox/build/type/types/schema.mjs
+function IsSchema$1(value) {
+	return IsObject$1(value);
 }
 //#endregion
 //#region ../../node_modules/typebox/build/system/arguments/arguments.mjs
@@ -642,6 +709,39 @@ function HashCode(value) {
 /** Generates a FNV1A-64 non cryptographic hash of the given value */
 function Hash(value) {
 	return HashCode(value).toString(16).padStart(16, "0");
+}
+//#endregion
+//#region ../../node_modules/typebox/build/type/types/_refine.mjs
+/** Applies a Refine check to the given type. */
+function RefineAdd(type, refinement) {
+	return Update(type, { "~refine": IsRefine$1(type) ? [...type["~refine"], refinement] : [refinement] }, {});
+}
+/** Refines a type with an explicit check */
+function Refine(...args) {
+	let [type, check, error_or_message] = Match$1(args, {
+		3: (type, check, error) => [
+			type,
+			check,
+			error
+		],
+		2: (type, check) => [
+			type,
+			check,
+			() => "Refine Error"
+		]
+	});
+	return RefineAdd(type, {
+		check,
+		error: IsString$2(error_or_message) ? () => error_or_message : error_or_message
+	});
+}
+/** Returns true if the given value is a TRefinement. */
+function IsRefinement(value) {
+	return IsObjectNotArray$1(value) && HasPropertyKey$1(value, "check") && HasPropertyKey$1(value, "error") && IsFunction$1(value.check) && IsFunction$1(value.error);
+}
+/** Returns true if the given value is a TRefine. */
+function IsRefine$1(value) {
+	return IsSchema$1(value) && HasPropertyKey$1(value, "~refine") && IsArray$1(value["~refine"]) && Every$1(value["~refine"], 0, (value) => IsRefinement(value));
 }
 //#endregion
 //#region ../../node_modules/typebox/build/type/types/string.mjs
@@ -2658,6 +2758,8 @@ function Build(...args) {
 	let stack = new Stack(context, schema), build = new BuildContext(HasUnevaluated(context, schema)), call = CreateFunction(stack, build, schema, "value"), functions = GetFunctions();
 	return new BuildResult(context, schema, GetExternal(), functions, call, build.UseUnevaluated());
 }
-const fn = ((schema) => (importRef(Build({}, schema).External().variables), evaluate()))(String$1({ pattern: /abc/ }));
-console.log(fn("abc"));
+//#endregion
+//#region src/typebox.ts
+const compile = (schema) => (importRef(Build({}, schema).External().variables), evaluate(!0)), fn = compile(String$1({ pattern: /abc/ })), fn1 = compile(Refine({}, (value) => typeof value == "string"));
+console.log(fn("abc")), console.log(fn1("abc"));
 //#endregion

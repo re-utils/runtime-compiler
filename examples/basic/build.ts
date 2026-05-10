@@ -13,9 +13,9 @@ build({
       compress: true,
       mangle: false,
       codegen: {
-        removeWhitespace: false
-      }
-    }
+        removeWhitespace: false,
+      },
+    },
   },
   plugins: [rtc()],
 });

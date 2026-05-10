@@ -32,8 +32,8 @@ export const runInWorker = (code: string): Promise<string[]> => {
  */
 export const compile = async (code: string): Promise<string> => {
   let str =
-    'import"runtime-compiler/env/aot";import{__rtcpl_setup_aot__}from"runtime-compiler/globals";';
-  for (let i = 0, codes = await runInWorker(code); i < codes.length; i++)
-    str += `__rtcpl_setup_aot__($=>{${codes[i]}});`;
-  return str + code;
+    'import"runtime-compiler/env/aot";import{__rtcpl_aot_fns__}from"runtime-compiler/globals";__rtcpl_aot_fns__.push(';
+  for (let codes = await runInWorker(code), i = codes.length - 1; i > -1; i--)
+    str += `$=>{${codes[i]}},`;
+  return str + ');' + code;
 };

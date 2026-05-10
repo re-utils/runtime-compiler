@@ -92,49 +92,46 @@ export default (): Plugin => ({
       }
     }
 
-    let aotCode =
-      'let __rtcpl_aot_fn_idx__=0;const __rtcpl_r__=[],__rtcpl_aot_fns__=[';
+    let aotCode = 'const __rtcpl_r__=[],__rtcpl_aot_fns__=[';
 
     // Load built code
-    for (let i = 0, codes = await runInWorker(code); i < codes.length; i++)
+    for (let codes = await runInWorker(code), i = codes.length - 1; i > -1; i--)
       aotCode += `$=>{${codes[i]}},`;
-    aotCode += '];';
+    aotCode += ']';
 
     // Load bindings
     for (let i = 0, { bindings } = envImport; i < bindings.length; i++) {
       const { name, alias } = bindings[i];
       aotCode +=
         name === 'IS_AOT'
-          ? `const ${alias}=true;`
+          ? `,${alias}=true`
           : name === 'IS_BUILD' || name === 'IS_JIT'
-            ? `const ${alias}=false;`
+            ? `,${alias}=false`
             : '';
     }
     for (let i = 0, { bindings } = globalsImport; i < bindings.length; i++) {
       const { name, alias } = bindings[i];
       aotCode +=
         name === 'deref'
-          ? `const ${alias}=i=>__rtcpl_r__[i];`
-          : name === 'emit'
-            ? `const ${alias}=()=>{};`
-            : name === 'evaluate'
-              ? `const ${alias}=()=>__rtcpl_aot_fns__[__rtcpl_aot_fn_idx__++](__rtcpl_r__);`
-              : name === 'createRef'
-                ? `const ${alias}=()=>__rtcpl_r__.push(undefined)-1;`
-                : name === 'importRef'
-                  ? `const ${alias}=v=>__rtcpl_r__.push(v)-1;`
-                  : '';
+          ? `,${alias}=i=>__rtcpl_r__[i]`
+          : name === 'evaluate'
+            ? `,${alias}=(_)=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
+            : name === 'createRef'
+              ? `,${alias}=()=>__rtcpl_r__.push(undefined)-1`
+              : name === 'importRef'
+                ? `,${alias}=v=>__rtcpl_r__.push(v)-1`
+                : '';
     }
 
     // Remove /env and /globals import
-    aotCode +=
-      envImport.start < globalsImport.start
+    aotCode += ';' +
+      (envImport.start < globalsImport.start
         ? code.slice(0, envImport.start) +
           code.slice(envImport.end, globalsImport.start) +
           code.slice(globalsImport.end)
         : code.slice(0, globalsImport.start) +
           code.slice(globalsImport.end, envImport.start) +
-          code.slice(envImport.end);
+          code.slice(envImport.end));
 
     return {
       code: aotCode,

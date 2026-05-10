@@ -1,3 +1,3 @@
-let __rtcpl_aot_fn_idx__ = 0;
-[($) => () => console.log("Hi")][__rtcpl_aot_fn_idx__++]([])();
+const __rtcpl_r__ = [], __rtcpl_aot_fns__ = [($) => () => console.log("Hi")];
+((_) => __rtcpl_aot_fns__.pop()(__rtcpl_r__))(!0)();
 //#endregion
