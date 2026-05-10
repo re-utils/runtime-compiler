@@ -1,3 +1,3 @@
-import { setBuild } from './index.ts';
+import { __rtcpl_build__ } from './index.ts';
 
-setBuild();
+__rtcpl_build__();

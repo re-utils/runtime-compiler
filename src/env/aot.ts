@@ -1,3 +1,3 @@
-import { setAOT } from './index.ts';
+import { __rtcpl_aot__ } from './index.ts';
 
-setAOT();
+__rtcpl_aot__();

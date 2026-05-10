@@ -28,6 +28,10 @@ export let evaluate: <T>(content?: string | boolean | null | undefined) => T = I
         if (typeof content === 'string') return (0, eval)(`$=>{${content}}`)(__rtcpl_r__);
       };
 
+/**
+ * Store compiled code as functions to run in AOT mode.
+ * @internal
+ */
 export const __rtcpl_aot_fns__: ((args: any[]) => any)[] = [];
 
 export const deref: <T>(id: Ref<T>) => T = (id) => __rtcpl_r__[id] as any;

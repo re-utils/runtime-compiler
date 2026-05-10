@@ -5,7 +5,7 @@ export let IS_AOT = false;
 /**
  * @internal
  */
-export const setBuild = (): void => {
+export const __rtcpl_build__ = (): void => {
   IS_JIT = false;
   IS_BUILD = true;
   IS_AOT = false;
@@ -14,7 +14,7 @@ export const setBuild = (): void => {
 /**
  * @internal
  */
-export const setAOT = (): void => {
+export const __rtcpl_aot__ = (): void => {
   IS_JIT = false;
   IS_BUILD = false;
   IS_AOT = true;
