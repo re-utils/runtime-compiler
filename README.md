@@ -39,6 +39,22 @@ export default defineConfig({
 });
 ```
 
-## Limitations
-- AOT only works if all `evaluate()` calls are at startup time.
-- Dependencies marked as external that uses `runtime-compiler` will run in JIT mode even after AOT build.
+If you have dependencies marked as external that uses `runtime-compiler`:
+```ts
+rtc({
+  // Return true if the package uses 'runtime-compiler' at startup time without pre-building.
+  useLoader: (externalPkg) => ...
+});
+```
+
+## Limitation
+Library code and startup code that uses `runtime-compiler` cannot be mixed together in the same bundle.
+```ts
+import { IS_AOT } from 'runtime-compiler/env';
+import { evaluate } from 'runtime-compiler/globals';
+
+const fn = evaluate<typeof console.log>(IS_AOT || `return console.log`)('Hi');
+
+// AOT build will break this export
+export const createFn = () => evaluate<typeof console.log>(IS_AOT || `return console.log`);
+```
