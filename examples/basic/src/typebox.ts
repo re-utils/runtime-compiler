@@ -1,5 +1,5 @@
 import { IS_AOT, IS_BUILD } from 'runtime-compiler/env';
-import { evaluate, importRef } from 'runtime-compiler/globals';
+import { evaluate, ref } from 'runtime-compiler/globals';
 
 import { Type, type Static } from 'typebox';
 import { Build, type XSchema } from 'typebox/schema';
@@ -8,7 +8,7 @@ const compile = <T extends XSchema>(schema: T): ((input: unknown) => input is St
   const result = Build({}, schema);
 
   const external = result.External();
-  const externalRef = importRef(external.variables);
+  const externalRef = ref(external.variables);
 
   return evaluate(
     IS_AOT ||
