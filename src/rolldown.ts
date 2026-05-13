@@ -1,4 +1,4 @@
-import type { Plugin } from 'rolldown';
+import type { Plugin, PluginContext } from 'rolldown';
 import { runInWorker, compile } from './build.ts';
 
 /**
@@ -62,121 +62,140 @@ const EMPTY_IMPORT: ImportStatement = {
   end: 0,
 };
 
-export interface Options {
-  /**
-   * Function to check whether this external dependency uses `runtime-compiler` without bundling.
-   */
-  useLoader?: (importName: string) => boolean;
-}
+type RenderChunk = Exclude<Plugin['renderChunk'] & {}, (...args: any[]) => any>;
 
-export default (options: Options = {}): Plugin =>
+export default (
+  options: {
+    /**
+     * Function to check whether this external dependency uses `runtime-compiler` without bundling.
+     */
+    useLoader?: (importName: string) => boolean;
+
+    /**
+     * Choose what chunk to run `renderChunk`.
+     */
+    filter?: RenderChunk['filter'];
+
+    /**
+     * Choose the order to run `renderChunk`.
+     */
+    order?: RenderChunk['order'];
+  } = {},
+): Plugin =>
   ({
     name: 'rolldown-plugin-runtime-compiler',
     resolveId: {
       filter: {
-        id: /^runtime-compiler\/(?:env|globals)$/,
+        id: /^runtime-compiler\/(?:env|globals|nobuild)$/,
       },
       handler: () => false,
     },
-    async renderChunk(code, chunk) {
-      const { imports } = chunk,
-        useLoader = options.useLoader && imports.some(options.useLoader);
+    renderChunk: {
+      filter: options.filter,
+      order: options.order,
+
       // Replace 'runtime-compiler/globals' and 'runtime-compiler/env' import
       // with their equivalent in AOT mode
       // Also run the module in build mode and insert the result to the final code
+      async handler(code, chunk) {
+        const { imports } = chunk,
+          useLoader = options.useLoader && imports.some(options.useLoader);
 
-      let globalsImport: ImportStatement = null as any;
-      if (useLoader) globalsImport = EMPTY_IMPORT;
-      else {
-        const globalsImportIdx = imports.indexOf('runtime-compiler/globals');
-        if (globalsImportIdx === -1) return null;
-        imports.splice(globalsImportIdx);
-      }
-
-      let envImport: ImportStatement = null as any;
-      {
-        const envImportIdx = imports.indexOf('runtime-compiler/env');
-        if (envImportIdx === -1) envImport = EMPTY_IMPORT;
-        else imports.splice(envImportIdx, 1);
-      }
-
-      for (
-        let start = 0, eol = code.indexOf('\n');
-        // Run until both imports are resolved
-        eol > -1 && (envImport == null || globalsImport == null);
-        eol = code.indexOf('\n', (start = eol + 1))
-      )
-        if (code.startsWith('import', start)) {
-          if (envImport == null && code.endsWith('"runtime-compiler/env";', eol))
-            envImport = parseImportBindings(code, start, eol);
-          else if (globalsImport == null && code.endsWith('"runtime-compiler/globals";', eol))
-            globalsImport = parseImportBindings(code, start, eol);
+        let envImport: ImportStatement = null as any;
+        {
+          const envImportIdx = imports.indexOf('runtime-compiler/env');
+          if (envImportIdx === -1) envImport = EMPTY_IMPORT;
+          else imports.splice(envImportIdx, 1);
         }
 
-      const codes = await runInWorker(code);
-      if (useLoader) {
-        const fileName = chunk.fileName + '-rtc-aot-loader.js';
-        this.emitFile({
-          type: 'prebuilt-chunk',
-          code: compile(codes),
-          fileName,
-        });
-        let aotCode = 'import' + JSON.stringify(fileName) + ';';
-
-        // Load bindings
-        for (let i = 0, { bindings } = envImport; i < bindings.length; i++) {
-          const { name, alias } = bindings[i];
-          aotCode +=
-            name === 'IS_AOT'
-              ? `const ${alias}=true;`
-              : name === 'IS_BUILD' || name === 'IS_JIT'
-                ? `const ${alias}=false;`
-                : '';
+        let globalsImport: ImportStatement = null as any;
+        if (useLoader) globalsImport = EMPTY_IMPORT;
+        else {
+          const globalsImportIdx = imports.indexOf('runtime-compiler/globals');
+          if (globalsImportIdx === -1) {
+            if (envImport === EMPTY_IMPORT) return null;
+            globalsImport = EMPTY_IMPORT;
+          } else imports.splice(globalsImportIdx);
         }
 
-        return aotCode + code.slice(0, envImport.start) + code.slice(envImport.end);
-      } else {
-        // Load built code
-        let aotCode = `const __rtcpl_r__=[],__rtcpl_aot_fns__=[${codes}]`;
+        for (
+          let start = 0, eol = code.indexOf('\n');
+          // Run until both imports are resolved
+          eol > -1 && (envImport == null || globalsImport == null);
+          eol = code.indexOf('\n', (start = eol + 1))
+        )
+          if (code.startsWith('import', start)) {
+            if (envImport == null && code.endsWith('"runtime-compiler/env";', eol))
+              envImport = parseImportBindings(code, start, eol);
+            else if (globalsImport == null && code.endsWith('"runtime-compiler/globals";', eol))
+              globalsImport = parseImportBindings(code, start, eol);
+          }
 
-        // Load bindings
-        for (let i = 0, { bindings } = envImport; i < bindings.length; i++) {
-          const { name, alias } = bindings[i];
-          aotCode +=
-            name === 'IS_AOT'
-              ? `,${alias}=true`
-              : name === 'IS_BUILD' || name === 'IS_JIT'
-                ? `,${alias}=false`
-                : '';
-        }
-        for (let i = 0, { bindings } = globalsImport; i < bindings.length; i++) {
-          const { name, alias } = bindings[i];
-          aotCode +=
-            name === 'deref'
-              ? `,${alias}=i=>__rtcpl_r__[i]`
-              : name === 'evaluate'
-                ? `,${alias}=_=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
-                : name === 'evaluateAsync'
-                  ? `,${alias}=async _=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
-                  : name === 'createRef'
-                    ? `,${alias}=()=>__rtcpl_r__.push(undefined)-1`
-                    : name === 'ref'
-                      ? `,${alias}=v=>__rtcpl_r__.push(v)-1`
-                      : '';
-        }
+        const codes = await runInWorker(code);
+        if (useLoader) {
+          const fileName = chunk.fileName + '-rtc-aot-loader.js';
+          this.emitFile({
+            type: 'prebuilt-chunk',
+            code: compile(codes),
+            fileName,
+          });
+          let aotCode = 'import' + JSON.stringify(fileName) + ';';
 
-        // Remove /env and /globals import
-        return (
-          aotCode +
-          ';' +
-          (envImport.start < globalsImport.start
-            ? code.slice(0, envImport.start) +
-              code.slice(envImport.end, globalsImport.start) +
-              code.slice(globalsImport.end)
-            : code.slice(0, globalsImport.start) +
-              code.slice(globalsImport.end, envImport.start) +
-              code.slice(envImport.end))
-        );
-      }
+          // Load bindings
+          for (let i = 0, { bindings } = envImport; i < bindings.length; i++) {
+            const { name, alias } = bindings[i];
+            aotCode +=
+              name === 'IS_AOT'
+                ? `const ${alias}=true;`
+                : name === 'IS_BUILD' || name === 'IS_JIT'
+                  ? `const ${alias}=false;`
+                  : '';
+          }
+
+          return aotCode + code.slice(0, envImport.start) + code.slice(envImport.end);
+        } else {
+          // Load built code
+          let aotCode = `const __rtcpl_r__=[],__rtcpl_aot_fns__=[${codes}]`;
+
+          // Load bindings
+          for (let i = 0, { bindings } = envImport; i < bindings.length; i++) {
+            const { name, alias } = bindings[i];
+            aotCode +=
+              name === 'IS_AOT'
+                ? `,${alias}=true`
+                : name === 'IS_BUILD' || name === 'IS_JIT'
+                  ? `,${alias}=false`
+                  : '';
+          }
+          for (let i = 0, { bindings } = globalsImport; i < bindings.length; i++) {
+            const { name, alias } = bindings[i];
+            aotCode +=
+              name === 'deref'
+                ? `,${alias}=i=>__rtcpl_r__[i]`
+                : name === 'evaluate'
+                  ? `,${alias}=_=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
+                  : name === 'evaluateAsync'
+                    ? `,${alias}=async _=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
+                    : name === 'createRef'
+                      ? `,${alias}=()=>__rtcpl_r__.push(undefined)-1`
+                      : name === 'ref'
+                        ? `,${alias}=v=>__rtcpl_r__.push(v)-1`
+                        : '';
+          }
+
+          // Remove /env and /globals import
+          return (
+            aotCode +
+            ';' +
+            (envImport.start < globalsImport.start
+              ? code.slice(0, envImport.start) +
+                code.slice(envImport.end, globalsImport.start) +
+                code.slice(globalsImport.end)
+              : code.slice(0, globalsImport.start) +
+                code.slice(globalsImport.end, envImport.start) +
+                code.slice(envImport.end))
+          );
+        }
+      },
     },
   }) as Plugin;

@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'rolldown';
+
 import rtc from 'runtime-compiler/rolldown';
 
 export default defineConfig({
