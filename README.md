@@ -3,7 +3,7 @@ A code generation system.
 # Usage
 ```ts
 import { IS_AOT, IS_BUILD } from 'runtime-compiler/env';
-import { evaluate } from 'runtime-compiler/globals';
+import { evaluate } from 'runtime-compiler';
 
 // Only log when building
 IS_BUILD && console.log('Building...');
@@ -41,17 +41,34 @@ export default defineConfig({
 
 If you have dependencies marked as external that uses `runtime-compiler`:
 ```ts
-rtc({
-  // Return true if the package uses 'runtime-compiler' at startup time without pre-building.
-  useLoader: (externalPkg) => ...
-});
+// package: external-pkg
+import { IS_AOT } from 'runtime-compiler/env';
+import { evaluate } from 'runtime-compiler';
+
+export const fn = evaluate(IS_AOT || '()=>console.log("Hi")');
+
+// index.ts
+import { fn } from 'external-pkg';
+fn();
+
+// build
+export default {
+  ...,
+  external: ['external-pkg', ...],
+  plugins: [
+    rtc({
+      // Chunks that import 'external-pkg' will output loader instead
+      useLoader: (pkg) => pkg === 'external-pkg';
+    });
+  ]
+}
 ```
 
 ## Limitation
-Library code and startup code that uses `runtime-compiler` cannot be mixed together in the same bundle.
+Library code and startup code that uses `runtime-compiler` cannot be mixed together in the same chunk.
 ```ts
 import { IS_AOT } from 'runtime-compiler/env';
-import { evaluate } from 'runtime-compiler/globals';
+import { evaluate } from 'runtime-compiler';
 
 const fn = evaluate<typeof console.log>(IS_AOT || `return console.log`)('Hi');
 

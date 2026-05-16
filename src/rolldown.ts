@@ -1,4 +1,4 @@
-import type { Plugin, PluginContext } from 'rolldown';
+import type { Plugin } from 'rolldown';
 import { runInWorker, compile } from './build.ts';
 
 /**
@@ -24,7 +24,7 @@ export interface ImportStatement {
 export const parseImportBindings = (code: string, start: number, end: number): ImportStatement => {
   const startSpecs = code.indexOf('{', start);
   const endSpecs = code.lastIndexOf('}', end);
-  if (start === -1 && end === -1) throw new Error('Only named imports replacement is supported!');
+  if (start === -1 && end === -1) throw new Error('Only named imports is supported');
 
   const bindings: ImportBinding[] = [];
   for (
@@ -77,7 +77,7 @@ export default (
     filter?: RenderChunk['filter'];
 
     /**
-     * Choose the order to run `renderChunk`.
+     * Choose the order to run `renderChunk`. Defaults to `pre`.
      */
     order?: RenderChunk['order'];
   } = {},
@@ -86,13 +86,16 @@ export default (
     name: 'rolldown-plugin-runtime-compiler',
     resolveId: {
       filter: {
-        id: /^runtime-compiler\/(?:env|globals|nobuild)$/,
+        id: /^runtime-compiler(?:$|\/env$)/,
       },
       handler: () => false,
     },
     renderChunk: {
       filter: options.filter,
-      order: options.order,
+
+      // Configurable order
+      // Should default to pre so it can resolve external imports properly
+      order: options.order ?? 'pre',
 
       // Replace 'runtime-compiler/globals' and 'runtime-compiler/env' import
       // with their equivalent in AOT mode
@@ -111,11 +114,11 @@ export default (
         let globalsImport: ImportStatement = null as any;
         if (useLoader) globalsImport = EMPTY_IMPORT;
         else {
-          const globalsImportIdx = imports.indexOf('runtime-compiler/globals');
+          const globalsImportIdx = imports.indexOf('runtime-compiler');
           if (globalsImportIdx === -1) {
             if (envImport === EMPTY_IMPORT) return null;
             globalsImport = EMPTY_IMPORT;
-          } else imports.splice(globalsImportIdx);
+          } else imports.splice(globalsImportIdx, 1);
         }
 
         for (
@@ -127,7 +130,7 @@ export default (
           if (code.startsWith('import', start)) {
             if (envImport == null && code.endsWith('"runtime-compiler/env";', eol))
               envImport = parseImportBindings(code, start, eol);
-            else if (globalsImport == null && code.endsWith('"runtime-compiler/globals";', eol))
+            else if (globalsImport == null && code.endsWith('"runtime-compiler";', eol))
               globalsImport = parseImportBindings(code, start, eol);
           }
 
@@ -173,9 +176,9 @@ export default (
               name === 'deref'
                 ? `,${alias}=i=>__rtcpl_r__[i]`
                 : name === 'evaluate'
-                  ? `,${alias}=_=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
+                  ? `,${alias}=()=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
                   : name === 'evaluateAsync'
-                    ? `,${alias}=async _=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
+                    ? `,${alias}=()=>__rtcpl_aot_fns__.pop()(__rtcpl_r__)`
                     : name === 'createRef'
                       ? `,${alias}=()=>__rtcpl_r__.push(undefined)-1`
                       : name === 'ref'

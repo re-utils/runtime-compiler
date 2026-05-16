@@ -1,5 +1,5 @@
 import { IS_AOT, IS_BUILD } from 'runtime-compiler/env';
-import { evaluate } from 'runtime-compiler/globals';
+import { evaluate } from 'runtime-compiler';
 
 // Only log when building
 IS_BUILD && console.log('Building...');

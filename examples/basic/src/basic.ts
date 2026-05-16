@@ -1,5 +1,5 @@
 import { IS_AOT, IS_BUILD } from 'runtime-compiler/env';
-import { evaluate, deref, createRef } from 'runtime-compiler/globals';
+import { evaluate, deref, createRef } from 'runtime-compiler';
 
 // Store compiled values
 const fn = createRef<() => void>();
