@@ -11,7 +11,7 @@ export const runInWorker = (code: string): Promise<string> =>
       `import"runtime-compiler/env/build";${
         // Run code in BUILD mode
         code
-      };\nimport{__rtcpl_ct__}from"runtime-compiler";import{parentPort as __rtcpl_pp__}from"node:worker_threads";__rtcpl_pp__.postMessage(__rtcpl_ct__)`,
+      };\nimport{__rtcpl_ct__}from"runtime-compiler";import{parentPort as __rtcpl_pp__}from"node:worker_threads";process.on('beforeExit',()=>__rtcpl_pp__.postMessage(__rtcpl_ct__))`,
       workerOptions,
     );
 

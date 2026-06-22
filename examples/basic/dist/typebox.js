@@ -1,14 +1,10 @@
-const __rtcpl_r__ = [], __rtcpl_aot_fns__ = [
-	($) => {
-		let External = $[1], check_6b7cc2cdfa418a80 = ((value) => External[0].every((refinement, _) => refinement.check(value)));
-		return (value) => check_6b7cc2cdfa418a80(value);
-	},
-	($) => {
-		let External = $[0], check_023660d1f3d5eb88 = ((value) => typeof value == "string" && External[0].test(value));
-		return (value) => check_023660d1f3d5eb88(value);
-	},
-	void 0
-], evaluate = (_) => __rtcpl_aot_fns__.pop()(__rtcpl_r__), ref = (v) => __rtcpl_r__.push(v) - 1;
+const __rtcpl_r__ = [], __rtcpl_aot_fns__ = [($) => {
+	let External = $[1], check_6b7cc2cdfa418a80 = ((value) => External[0].every((refinement, _) => refinement.check(value)));
+	return (value) => check_6b7cc2cdfa418a80(value);
+}, ($) => {
+	let External = $[0], check_023660d1f3d5eb88 = ((value) => typeof value == "string" && External[0].test(value));
+	return (value) => check_023660d1f3d5eb88(value);
+}], evaluate = () => __rtcpl_aot_fns__.pop()(__rtcpl_r__), ref = (v) => __rtcpl_r__.push(v) - 1;
 //#region \0rolldown/runtime.js
 var __defProp = Object.defineProperty, __exportAll = (all, no_symbols) => {
 	let target = {};
