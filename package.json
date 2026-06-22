@@ -1,6 +1,6 @@
 {
   "name": "runtime-compiler",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "description": "A code generation system.",
   "keywords": ["rolldown-plugin", "vite-plugin"],
   "homepage": "",

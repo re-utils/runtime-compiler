@@ -15,7 +15,7 @@ export const createRef = <T>(): Ref<T> => (__rtcpl_r__.push(undefined) - 1) as a
  * Codes are prepended.
  * @internal
  */
-export let __rtcpl_ct__: string;
+export let __rtcpl_ct__: string = '';
 
 export let evaluate: <T>(content?: any) => T = IS_AOT
   ? () => __rtcpl_aot_fns__.pop()!(__rtcpl_r__)
