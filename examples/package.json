@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "scripts": {
+    "build": "rolldown -c"
+  },
+  "dependencies": {
+    "@mapl/framework": "2.0.1"
+  }
+}

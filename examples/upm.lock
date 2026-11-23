@@ -1,0 +1,24 @@
+{
+  "lockfileVersion": 1,
+  "root": {
+    "specs": {
+      "dependencies": {
+        "@mapl/framework": "2.0.1"
+      }
+    },
+    "dependencies": {
+      "@mapl/framework": "2.0.1"
+    }
+  },
+  "packages": {
+    "@mapl/framework@2.0.1": {
+      "integrity": "sha512-dUvdBge9pWegTxda7qCEgR5LVeiRhlSOwijpmj1O66cKouiDHQdZo+ozB6icCnpme+aM17VuggF8hJ3Cnf4t3A==",
+      "dependencies": {
+        "@mapl/pattern-router": "0.1.3"
+      }
+    },
+    "@mapl/pattern-router@0.1.3": {
+      "integrity": "sha512-SvxEwiY6B+pketz0o9tgwjzHSFFmneVNs4X38DTmW/yMcWbdHduhtuqY3aBjOYyt36g+5azeHv0gm+CCaX847g=="
+    }
+  }
+}
