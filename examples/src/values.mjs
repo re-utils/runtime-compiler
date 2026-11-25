@@ -1,6 +1,6 @@
 import evaluate from 'runtime-compiler';
 
-export const res = evaluate(Math.random());
+export const res = evaluate(10);
 export const res1 = evaluate('str');
 
 export const res2 = evaluate({ a: 'b', c: 'd' });

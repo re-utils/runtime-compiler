@@ -1,1 +1,1 @@
-let e=0;for(let r=0;r<5;r++)e+=0;let r=()=>a,s=.4632336669353455,t=.4632336669353455;export{e as res,r as res1,s as res2,t as res3};
+let e=0;for(let r=0;r<5;r++)e+=0;let r=()=>a,s=10,t=10;export{e as res,r as res1,s as res2,t as res3};

@@ -9,10 +9,10 @@ export let res1 = evaluate(
   (
     (a) => () =>
       a
-  )(Math.random()),
+  )(10),
 );
 
 // nested callee
 const fn1 = (a) => evaluate(a);
-export let res2 = fn1(Math.random()),
+export let res2 = fn1(10),
   res3 = fn1('str');

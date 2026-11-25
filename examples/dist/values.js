@@ -1,1 +1,1 @@
-let e=.5875027149723815,r="str",s={a:"b",c:"d"},t=new Set(["a","b","c","d"]),n=function(e){return e+1};export{e as res,r as res1,s as res2,t as res3,n as res4};
+let e=10,r="str",s={a:"b",c:"d"},t=new Set(["a","b","c","d"]),n=function(e){return e+1};export{e as res,r as res1,s as res2,t as res3,n as res4};
