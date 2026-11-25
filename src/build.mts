@@ -3,12 +3,14 @@ import uneval, { type UnevalOptions } from 'uneval';
 import process from 'node:process';
 import { parentPort } from 'node:worker_threads';
 
+import type { Artifacts } from './utils.mts';
+
 process.on('beforeExit', () => {
   artifacts.sort((a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]));
   parentPort!.postMessage(artifacts);
 });
 
-const artifacts: [lineIdx: number, posIdx: number, serializedValue: string][] = [];
+const artifacts: Artifacts = [];
 const options: UnevalOptions = {
   custom: (value) => {
     if (typeof value === 'function') {

@@ -1,9 +1,9 @@
 import type { RolldownMagicString, Plugin } from 'rolldown';
-import { evaluate } from './utils.mts';
+import { evaluate, type Artifacts } from './utils.mts';
 import { Visitor } from 'rolldown/utils';
 
 // sync parse & overwrite calls to evaluate() with the evaluated value
-let _artifacts!: Awaited<ReturnType<typeof evaluate>>,
+let _artifacts!: Artifacts,
   _nextArtifactsIdx!: number,
   _magicString!: RolldownMagicString,
   visitor = new Visitor({
@@ -58,8 +58,8 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
       time = performance.now() - time;
       this.info(`evaluated chunk "${chunk.fileName}" in ${time.toFixed(2)}ms`);
 
+      // Infer actual start positions of the call expressions in the code string
       for (let entryIdx = 0, currentLine = 0, eolIdx = 0; entryIdx < artifacts.length; entryIdx++) {
-        // Infer actual position of the call in the code string
         const entry = artifacts[entryIdx],
           entryLine = entry[0];
         while (currentLine < entryLine) {
