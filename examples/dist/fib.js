@@ -1,2 +1,1 @@
-var fib_default = 144;
-export { fib_default as default };
+var a=144;export{a as default};

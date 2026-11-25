@@ -1,17 +1,1 @@
-// src/values.mjs
-const res = .04474606889544952;
-const res1 = "str";
-const res2 = {
-	a: "b",
-	c: "d"
-};
-const res3 = /* @__PURE__ */ new Set([
-	"a",
-	"b",
-	"c",
-	"d"
-]);
-const res4 = (function anonymous(g) {
-	return g + 1;
-});
-export { res, res1, res2, res3, res4 };
+let e=.5875027149723815,r="str",s={a:"b",c:"d"},t=new Set(["a","b","c","d"]),n=function(e){return e+1};export{e as res,r as res1,s as res2,t as res3,n as res4};

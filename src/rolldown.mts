@@ -4,17 +4,24 @@ import { Visitor } from 'rolldown/utils';
 
 // sync parse & overwrite calls to evaluate() with the evaluated value
 let _artifacts!: Artifacts,
-  _nextArtifactsIdx!: number,
-  _magicString!: RolldownMagicString,
+  // current artifact index
+  _cur_artifacts_idx!: number,
+  // source code magic string
+  _ms!: RolldownMagicString,
+  // fn name of the imported evaluate function
+  _fn_name!: string,
   visitor = new Visitor({
     CallExpression(node) {
-      // stop ast tranverse
-      if (_artifacts.length === _nextArtifactsIdx) throw null;
+      while (_cur_artifacts_idx < _artifacts.length && node.start > _artifacts[_cur_artifacts_idx][0])
+        _cur_artifacts_idx++;
 
-      const artifact = _artifacts[_nextArtifactsIdx];
+      // stop ast tranverse if out of bound
+      if (_artifacts.length === _cur_artifacts_idx) throw null;
+
+      const artifact = _artifacts[_cur_artifacts_idx];
       if (artifact[0] === node.start) {
-        _magicString.overwrite(node.start, node.end, `(${artifact[2]})`);
-        _nextArtifactsIdx++;
+        const { callee } = node;
+        if (callee.type === 'Identifier' && callee.name === _fn_name) _ms.overwrite(node.start, node.end, `(${artifact[2]})`);
       }
     },
   });
@@ -35,28 +42,32 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
     const importIdx = chunk.imports.indexOf('runtime-compiler/build');
     if (importIdx === -1) return null;
 
-    const { magicString } = meta;
-    if (magicString == null) {
+    const ms = meta.magicString;
+    if (ms == null) {
       this.warn('This plugin requires Rolldown native MagicString support!');
       return null;
     }
 
     // remove runtime-compiler/build import
+    let fn_name!: string;
     chunk.imports.splice(importIdx, 1);
-    magicString.replace(
+    ms.replace(
       /import (.*) from.?.runtime-compiler\/build./,
-      (_, $1) => `const ${$1}=v=>v`,
+      (_, $1) => `const ${fn_name = $1}=v=>v`,
     );
 
     // apply artifacts
     if (options?.evaluate !== false) {
-      this.info(`evaluating chunk "${chunk.fileName}" in a worker...`);
+      this.debug(`evaluating chunk "${chunk.fileName}" in a worker`);
       let time = performance.now();
 
       const artifacts = await evaluate(code);
 
       time = performance.now() - time;
-      this.info(`evaluated chunk "${chunk.fileName}" in ${time.toFixed(2)}ms`);
+      this.debug(`evaluated chunk "${chunk.fileName}" in ${time.toFixed(2)}ms`);
+
+      this.debug(`replace "${chunk.fileName}" evaluate() calls with evaluated values`);
+      time = performance.now();
 
       // Infer actual start positions of the call expressions in the code string
       for (let entryIdx = 0, currentLine = 0, eolIdx = 0; entryIdx < artifacts.length; entryIdx++) {
@@ -71,10 +82,10 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
       }
 
       try {
-        // can't race condition here so this is fine
         _artifacts = artifacts;
-        _nextArtifactsIdx = 0;
-        _magicString = magicString;
+        _cur_artifacts_idx = 0;
+        _ms = ms;
+        _fn_name = fn_name;
         visitor.visit(this.parse(code));
       } catch (e) {
         // visit stops
@@ -82,8 +93,11 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
           throw e;
       }
 
-      return { code: magicString };
+      time = performance.now() - time;
+      this.debug(`replace "${chunk.fileName}" evaluate() calls in ${time.toFixed(2)}ms`);
     }
+
+    return { code: ms };
   },
 });
 export default rtc;

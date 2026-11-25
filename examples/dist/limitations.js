@@ -1,9 +1,1 @@
-const evaluate = (v) => v;
-// src/limitations.mjs
-let res = 0;
-for (let i = 0; i < 5; i++) res += 0;
-let res1 = evaluate(((a) => () => a)(Math.random()));
-const fn1 = (a) => evaluate(a);
-let res2 = fn1(Math.random());
-let res3 = fn1("str");
-export { res, res1, res2, res3 };
+let e=0;for(let r=0;r<5;r++)e+=0;let r=()=>a,s=.4632336669353455,t=.4632336669353455;export{e as res,r as res1,s as res2,t as res3};
