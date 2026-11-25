@@ -50,7 +50,13 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
 
     // apply artifacts
     if (options?.evaluate !== false) {
+      this.info(`evaluating chunk "${chunk.fileName}" in a worker...`);
+      let time = performance.now();
+
       const artifacts = await evaluate(code);
+
+      time = performance.now() - time;
+      this.info(`evaluated chunk "${chunk.fileName}" in ${time.toFixed(2)}ms`);
 
       for (let entryIdx = 0, currentLine = 0, eolIdx = 0; entryIdx < artifacts.length; entryIdx++) {
         // Infer actual position of the call in the code string
