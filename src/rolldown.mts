@@ -12,7 +12,10 @@ let _artifacts!: Artifacts,
   _fn_name!: string,
   visitor = new Visitor({
     CallExpression(node) {
-      while (_cur_artifacts_idx < _artifacts.length && node.start > _artifacts[_cur_artifacts_idx][0])
+      while (
+        _cur_artifacts_idx < _artifacts.length &&
+        node.start > _artifacts[_cur_artifacts_idx][0]
+      )
         _cur_artifacts_idx++;
 
       // stop ast tranverse if out of bound
@@ -21,7 +24,8 @@ let _artifacts!: Artifacts,
       const artifact = _artifacts[_cur_artifacts_idx];
       if (artifact[0] === node.start) {
         const { callee } = node;
-        if (callee.type === 'Identifier' && callee.name === _fn_name) _ms.overwrite(node.start, node.end, `(${artifact[2]})`);
+        if (callee.type === 'Identifier' && callee.name === _fn_name)
+          _ms.update(node.start, node.end, `(${artifact[2]})`);
       }
     },
   });
@@ -53,7 +57,7 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
     chunk.imports.splice(importIdx, 1);
     ms.replace(
       /import (.*) from.?.runtime-compiler\/build./,
-      (_, $1) => `const ${fn_name = $1}=v=>v`,
+      (_, $1) => `const ${(fn_name = $1)}=v=>v`,
     );
 
     // apply artifacts
@@ -89,8 +93,7 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
         visitor.visit(this.parse(code));
       } catch (e) {
         // visit stops
-        if (e !== null)
-          throw e;
+        if (e !== null) throw e;
       }
 
       time = performance.now() - time;
