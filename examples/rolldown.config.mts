@@ -11,21 +11,22 @@ export default defineConfig({
     nativeMagicString: true,
   },
   output: {
-    minify: false
+    minify: false,
   },
   plugins: [
     rtc(),
     {
       name: 'swc-minify',
-      renderChunk: (code, _, options) => minify(code, {
-        module: options.format === 'es',
-        sourceMap: !!options.sourcemap,
-        inlineSourcesContent: !options.sourcemapExcludeSources,
+      renderChunk: (code, _, options) =>
+        minify(code, {
+          module: options.format === 'es',
+          sourceMap: !!options.sourcemap,
+          inlineSourcesContent: !options.sourcemapExcludeSources,
 
-        // custom options
-        mangle: true,
-        compress: true
-      })
-    }
+          // custom options
+          mangle: true,
+          compress: true,
+        }),
+    },
   ],
 });
