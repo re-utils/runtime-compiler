@@ -5,9 +5,6 @@ import rtc from 'runtime-compiler/rolldown';
 
 export default defineConfig({
   input: globSync('src/**/*'),
-  output: {
-    minify: false,
-  },
   experimental: {
     nativeMagicString: true,
   },
