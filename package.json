@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.0.1",
   "description": "",
-  "keywords": [],
+  "keywords": ["rolldown-plugin"],
   "homepage": "",
   "repository": "",
   "exports": {

@@ -19,6 +19,21 @@ export default defineConfig({
   plugins: [rtc()],
 });
 
+// or vite.config.mts
+import rtc from 'runtime-compiler/rolldown';
+
+export default defineConfig({
+  // Only run this plugin on build
+  build: {
+    rolldownOptions: {
+      experimental: {
+        nativeMagicString: true,
+      },
+      plugins: [rtc()]
+    }
+  }
+});
+
 // dist/index.js
 var fib_default = 144;
 export { fib_default as default };
