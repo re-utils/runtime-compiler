@@ -3,7 +3,7 @@ import sh from './lib/sh.mts';
 
 export default defineConfig({
   package: {
-    name: 'example',
+    name: 'runtime-compiler',
     scripts: {
       include: ['install', 'uninstall', 'prepare', 'prepublish'],
       runFile: (file) => sh`node ${file}`,
