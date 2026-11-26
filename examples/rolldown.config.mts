@@ -29,5 +29,5 @@ export default defineConfig({
         }),
     },
   ],
-  logLevel: 'debug'
+  logLevel: 'debug',
 });

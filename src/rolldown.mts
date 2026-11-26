@@ -14,14 +14,11 @@ let _artifacts!: Artifacts,
   VISIT_STOP = Symbol(),
   visitor = new Visitor({
     CallExpression(node) {
-      while (
-        _cur_artifacts_idx < _artifacts.length &&
-        node.start > _artifacts[_cur_artifacts_idx][0]
-      )
+      while (node.start > _artifacts[_cur_artifacts_idx][0]) {
         _cur_artifacts_idx++;
-
-      // stop ast tranverse if out of bound
-      if (_artifacts.length === _cur_artifacts_idx) throw VISIT_STOP;
+        // stop ast tranverse if out of bound
+        if (_artifacts.length === _cur_artifacts_idx) throw VISIT_STOP;
+      }
 
       const artifact = _artifacts[_cur_artifacts_idx];
       if (artifact[0] === node.start) {
@@ -75,27 +72,37 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
       this.debug(`replace chunk "${chunk.fileName}" evaluate() calls with evaluated values`);
       time = performance.now();
 
-      // Infer actual start positions of the call expressions in the code string
-      for (let entryIdx = 0, currentLine = 0, eolIdx = 0; entryIdx < artifacts.length; entryIdx++) {
-        const entry = artifacts[entryIdx],
-          entryLine = entry[0];
-        while (currentLine < entryLine) {
-          eolIdx = code.indexOf('\n', eolIdx) + 1;
-          currentLine++;
+      if (artifacts.length > 0) {
+        // Infer actual start positions of the call expressions in the code string
+        for (
+          let entryIdx = 0, currentLine = 0, eolIdx = 0;
+          entryIdx < artifacts.length;
+          entryIdx++
+        ) {
+          const entry = artifacts[entryIdx],
+            entryLine = entry[0];
+          while (currentLine < entryLine) {
+            eolIdx = code.indexOf('\n', eolIdx) + 1;
+            currentLine++;
+          }
+
+          entry[0] = eolIdx + entry[1];
         }
 
-        entry[0] = eolIdx + entry[1];
-      }
-
-      try {
-        _artifacts = artifacts;
-        _cur_artifacts_idx = 0;
-        _ms = ms;
-        _fn_name = fn_name;
-        visitor.visit(this.parse(code));
-      } catch (e) {
-        // visit stops
-        if (e !== VISIT_STOP) throw e;
+        try {
+          _artifacts = artifacts;
+          _cur_artifacts_idx = 0;
+          _ms = ms;
+          _fn_name = fn_name;
+          visitor.visit(this.parse(code));
+        } catch (e) {
+          // visit stops
+          if (e !== VISIT_STOP) throw e;
+        } finally {
+          // free references
+          _artifacts = null!;
+          _ms = null!;
+        }
       }
 
       time = performance.now() - time;

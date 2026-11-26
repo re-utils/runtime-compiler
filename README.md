@@ -20,6 +20,7 @@ export default defineConfig({
 });
 
 // or vite.config.mts
+import { defineConfig } from 'vite';
 import rtc from 'runtime-compiler/rolldown';
 
 export default defineConfig({
