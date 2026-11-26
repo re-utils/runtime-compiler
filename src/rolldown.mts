@@ -10,6 +10,8 @@ let _artifacts!: Artifacts,
   _ms!: RolldownMagicString,
   // fn name of the imported evaluate function
   _fn_name!: string,
+  // stop error
+  VISIT_STOP = Symbol(),
   visitor = new Visitor({
     CallExpression(node) {
       while (
@@ -19,7 +21,7 @@ let _artifacts!: Artifacts,
         _cur_artifacts_idx++;
 
       // stop ast tranverse if out of bound
-      if (_artifacts.length === _cur_artifacts_idx) throw null;
+      if (_artifacts.length === _cur_artifacts_idx) throw VISIT_STOP;
 
       const artifact = _artifacts[_cur_artifacts_idx];
       if (artifact[0] === node.start) {
@@ -93,7 +95,7 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
         visitor.visit(this.parse(code));
       } catch (e) {
         // visit stops
-        if (e !== null) throw e;
+        if (e !== VISIT_STOP) throw e;
       }
 
       time = performance.now() - time;
