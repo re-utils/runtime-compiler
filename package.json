@@ -25,7 +25,8 @@
     "oxfmt": "^0.73.0",
     "rolldown": "^1.3.3",
     "runtime-compiler": "link:dist",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
   },
   "sideEffects": false,
   "dependencies": {

@@ -31,7 +31,7 @@ let _artifacts!: Artifacts,
   });
 
 const rtc = (options?: { evaluate?: boolean }): Plugin => ({
-  name: 'runtime-compiler',
+  name: 'rolldown-plugin-runtime-compiler',
   resolveId: {
     order: 'pre',
     filter: {
