@@ -5,8 +5,7 @@
   "keywords": [
     "rolldown-plugin"
   ],
-  "homepage": "",
-  "repository": "",
+  "repository": "re-utils/runtime-compiler",
   "exports": {
     ".": "./index.mjs",
     "./*": "./*.mjs"
