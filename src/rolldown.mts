@@ -31,7 +31,7 @@ let _artifacts!: Artifacts,
   });
 
 const rtc = (options?: { evaluate?: boolean }): Plugin => ({
-  name: 'rolldown-plugin-runtime-compiler',
+  name: 'runtime-compiler',
   resolveId: {
     order: 'pre',
     filter: {
@@ -70,7 +70,7 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
       time = performance.now() - time;
       this.debug(`evaluated chunk "${chunk.fileName}" in ${time.toFixed(2)}ms`);
 
-      this.debug(`replace "${chunk.fileName}" evaluate() calls with evaluated values`);
+      this.debug(`replace chunk "${chunk.fileName}" evaluate() calls with evaluated values`);
       time = performance.now();
 
       // Infer actual start positions of the call expressions in the code string

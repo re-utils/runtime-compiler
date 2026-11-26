@@ -4,6 +4,6 @@
     "build": "rolldown -c"
   },
   "dependencies": {
-    "@mapl/framework": "2.0.1"
+    "@mapl/framework": "2.1.0"
   }
 }
