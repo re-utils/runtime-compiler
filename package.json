@@ -1,7 +1,7 @@
 {
   "type": "module",
-  "version": "0.0.1",
-  "description": "",
+  "version": "5.0.0",
+  "description": "A compile time evaluation system.",
   "keywords": ["rolldown-plugin"],
   "homepage": "",
   "repository": "",
