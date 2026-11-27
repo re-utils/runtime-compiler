@@ -29,7 +29,12 @@ let _artifacts!: Artifacts,
     },
   });
 
-const rtc = (options?: { evaluate?: boolean }): Plugin => ({
+const rtc = (options?: {
+  /**
+   * Build module to use, defaults to `runtime-compiler/build`.
+   */
+  buildModule?: string;
+}): Plugin => ({
   name: 'rolldown-plugin-runtime-compiler',
   resolveId: {
     order: 'pre',
@@ -37,7 +42,7 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
       id: /^runtime-compiler$/,
     },
     handler: () => ({
-      id: 'runtime-compiler/build',
+      id: options?.buildModule ?? 'runtime-compiler/build',
       external: 'absolute',
     }),
   },
@@ -60,49 +65,45 @@ const rtc = (options?: { evaluate?: boolean }): Plugin => ({
     );
 
     // apply artifacts
-    if (options?.evaluate !== false) {
-      this.debug(`evaluating chunk "${chunk.fileName}" in a worker`);
-      let time = performance.now();
+    this.debug(`evaluating chunk "${chunk.fileName}" in a worker`);
+    let time = performance.now();
 
-      const artifacts = await evaluate(code);
+    const artifacts = await evaluate(code);
 
-      time = performance.now() - time;
-      this.debug(`evaluated chunk "${chunk.fileName}" in ${time.toFixed(2)}ms`);
+    time = performance.now() - time;
+    this.debug(`evaluated chunk "${chunk.fileName}" in ${time.toFixed(2)}ms`);
 
-      this.debug(`replace chunk "${chunk.fileName}" evaluate() calls with evaluated values`);
-      time = performance.now();
+    this.debug(`replace chunk "${chunk.fileName}" evaluate() calls with evaluated values`);
+    time = performance.now();
 
-      if (artifacts.length > 0) {
-        // Infer actual start positions of the call expressions in the code string
-        for (
-          let entryIdx = 0, currentLine = 0, eolIdx = 0;
-          entryIdx < artifacts.length;
-          entryIdx++
-        ) {
-          const entry = artifacts[entryIdx],
-            entryLine = entry[0];
-          while (currentLine < entryLine) {
-            eolIdx = code.indexOf('\n', eolIdx) + 1;
-            currentLine++;
-          }
+    if (artifacts.length > 0) {
+      artifacts.sort((a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]));
 
-          entry[0] = eolIdx + entry[1];
+      // Infer actual start positions of the call expressions in the code string
+      for (let entryIdx = 0, currentLine = 0, eolIdx = 0; entryIdx < artifacts.length; entryIdx++) {
+        const entry = artifacts[entryIdx],
+          entryLine = entry[0];
+        while (currentLine < entryLine) {
+          eolIdx = code.indexOf('\n', eolIdx) + 1;
+          currentLine++;
         }
 
-        try {
-          _artifacts = artifacts;
-          _cur_artifacts_idx = 0;
-          _ms = ms;
-          _fn_name = fn_name;
-          visitor.visit(this.parse(code));
-        } catch (e) {
-          // visit stops
-          if (e !== VISIT_STOP) throw e;
-        } finally {
-          // free references
-          _artifacts = null!;
-          _ms = null!;
-        }
+        entry[0] = eolIdx + entry[1];
+      }
+
+      try {
+        _artifacts = artifacts;
+        _cur_artifacts_idx = 0;
+        _ms = ms;
+        _fn_name = fn_name;
+        visitor.visit(this.parse(code));
+      } catch (e) {
+        // visit stops
+        if (e !== VISIT_STOP) throw e;
+      } finally {
+        // free references
+        _artifacts = null!;
+        _ms = null!;
       }
 
       time = performance.now() - time;
